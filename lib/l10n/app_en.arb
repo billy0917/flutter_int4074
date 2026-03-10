@@ -1,0 +1,110 @@
+{
+  "@@locale": "en",
+  "appName": "PinPin Go",
+  "homeGreetingMorning": "Good Morning! ☀️",
+  "homeGreetingAfternoon": "Good Afternoon! 🌤️",
+  "homeGreetingEvening": "Good Evening! 🌙",
+  "homeSubtitle": "Ready to learn Mandarin?",
+  "featureSnap": "Snap",
+  "featureSnapSub": "Snap & Learn",
+  "featureQuiz": "Quiz",
+  "featureQuizSub": "Quiz Time",
+  "featureHistory": "History",
+  "featureHistorySub": "History",
+  "featureFavorites": "Favorites",
+  "featureFavoritesSub": "Coming Soon",
+  "featureGames": "Games",
+  "featureGamesSub": "In Development",
+  "featureAchievements": "Achievements",
+  "featureAchievementsSub": "In Development",
+  "featureComingSoon": "Coming Soon",
+  "comingSoonMsg": "This feature is coming soon, stay tuned!",
+  "recentLearned": "Recently Learned",
+  "moreFeatures": "More Features",
+  "statsWordsLearned": "Learned {count} words",
+  "@statsWordsLearned": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "statsStreak": "{days} day streak",
+  "@statsStreak": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+  "cameraTitle": "Snap & Learn",
+  "cameraHint": "Take a photo of something to learn!",
+  "cameraRecognize": "Start Recognition",
+  "cameraRetake": "Retake",
+  "cameraAlbum": "Album",
+  "loadingRecognize": "AI is recognizing…",
+  "resultTitle": "Learning Card",
+  "resultHanzi": "Chinese",
+  "resultPinyin": "Pinyin",
+  "resultTone": "Tone",
+  "resultEnglish": "English",
+  "resultCantonese": "Cantonese",
+  "resultExample": "Example",
+  "resultListen": "🔊 Listen",
+  "resultStartQuiz": "📝 Start Quiz",
+  "resultRetake": "📷 Take Another",
+  "quizTitle": "Quiz",
+  "quizQuestionOf": "Q{current} / {total}",
+  "@quizQuestionOf": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "quizDrawHint": "Draw the tone contour below",
+  "quizClear": "Clear",
+  "quizSubmit": "Submit",
+  "quizNext": "Next →",
+  "quizCorrect": "Correct! Great job! 🎉",
+  "quizIncorrect": "Not quite~ The correct answer is:",
+  "quizResultTitle": "Quiz Complete! 🎉",
+  "quizResultScore": "You got {correct} / {total} correct!",
+  "@quizResultScore": {
+    "placeholders": {
+      "correct": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "quizResultAccuracy": "Accuracy: {percent}%",
+  "@quizResultAccuracy": {
+    "placeholders": {
+      "percent": {"type": "int"}
+    }
+  },
+  "quizRetry": "🔄 Try Again",
+  "quizGoHome": "🏠 Home",
+  "historyTitle": "History",
+  "historyNoQuiz": "No quiz taken",
+  "historySearch": "Search…",
+  "historyEmpty": "No learning records yet",
+  "historyDelete": "Delete",
+  "historyDeleteConfirm": "Delete this record?",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "settingsTitle": "Settings",
+  "settingsLanguage": "Language / 語言",
+  "settingsTtsSpeed": "Speech Speed",
+  "settingsClearHistory": "Clear All History",
+  "settingsClearConfirm": "Clear all records? This cannot be undone.",
+  "settingsAbout": "About",
+  "settingsVersion": "Version 1.0.0",
+  "errorApi": "Recognition failed, please retry",
+  "errorNoCamera": "Cannot access camera",
+  "errorNetwork": "Please check your network connection",
+  "retry": "Retry",
+  "back": "Back",
+  "toneFirst": "1st Tone (Level)",
+  "toneSecond": "2nd Tone (Rising)",
+  "toneThird": "3rd Tone (Dipping)",
+  "toneFourth": "4th Tone (Falling)",
+  "toneLight": "Neutral Tone",
+  "startQuiz": "Start Quiz",
+  "generateQuizLoading": "Generating quiz…",
+  "todayStats": "Today's Stats"
+}

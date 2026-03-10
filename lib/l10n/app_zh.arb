@@ -1,0 +1,110 @@
+{
+  "@@locale": "zh",
+  "appName": "拼拼樂",
+  "homeGreetingMorning": "早安！☀️",
+  "homeGreetingAfternoon": "午安！🌤️",
+  "homeGreetingEvening": "晚安！🌙",
+  "homeSubtitle": "準備好學普通話了嗎？",
+  "featureSnap": "拍一拍",
+  "featureSnapSub": "Snap & Learn",
+  "featureQuiz": "小測驗",
+  "featureQuizSub": "Quiz Time",
+  "featureHistory": "歷史記錄",
+  "featureHistorySub": "History",
+  "featureFavorites": "收藏夾",
+  "featureFavoritesSub": "即將推出",
+  "featureGames": "趣味遊戲",
+  "featureGamesSub": "開發中",
+  "featureAchievements": "成就系統",
+  "featureAchievementsSub": "開發中",
+  "featureComingSoon": "即將推出",
+  "comingSoonMsg": "此功能即將推出，敬請期待！",
+  "recentLearned": "最近學過",
+  "moreFeatures": "更多功能",
+  "statsWordsLearned": "已學 {count} 個詞",
+  "@statsWordsLearned": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "statsStreak": "連續 {days} 天",
+  "@statsStreak": {
+    "placeholders": {
+      "days": {"type": "int"}
+    }
+  },
+  "cameraTitle": "拍一拍",
+  "cameraHint": "拍下你想學的東西吧！",
+  "cameraRecognize": "開始辨識",
+  "cameraRetake": "重新拍攝",
+  "cameraAlbum": "相簿",
+  "loadingRecognize": "AI 正在辨識中…",
+  "resultTitle": "學習卡片",
+  "resultHanzi": "漢字",
+  "resultPinyin": "拼音",
+  "resultTone": "聲調",
+  "resultEnglish": "英文",
+  "resultCantonese": "粵語對照",
+  "resultExample": "例句",
+  "resultListen": "🔊 聽發音",
+  "resultStartQuiz": "📝 開始測驗",
+  "resultRetake": "📷 再拍一張",
+  "quizTitle": "小測驗",
+  "quizQuestionOf": "第 {current} 題 / 共 {total} 題",
+  "@quizQuestionOf": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "quizDrawHint": "用手指在下方畫出聲調走勢",
+  "quizClear": "清除重畫",
+  "quizSubmit": "提交答案",
+  "quizNext": "下一題 →",
+  "quizCorrect": "正確！很棒！🎉",
+  "quizIncorrect": "不對哦～正確答案是：",
+  "quizResultTitle": "測驗完成！🎉",
+  "quizResultScore": "你答對了 {correct} / {total} 題！",
+  "@quizResultScore": {
+    "placeholders": {
+      "correct": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+  "quizResultAccuracy": "正確率：{percent}%",
+  "@quizResultAccuracy": {
+    "placeholders": {
+      "percent": {"type": "int"}
+    }
+  },
+  "quizRetry": "🔄 再測一次",
+  "quizGoHome": "🏠 回主頁",
+  "historyTitle": "歷史記錄",
+  "historyNoQuiz": "未測驗",
+  "historySearch": "搜索…",
+  "historyEmpty": "暫無學習記錄",
+  "historyDelete": "刪除",
+  "historyDeleteConfirm": "確定要刪除此記錄嗎？",
+  "cancel": "取消",
+  "confirm": "確定",
+  "settingsTitle": "設定",
+  "settingsLanguage": "語言 / Language",
+  "settingsTtsSpeed": "語音速度",
+  "settingsClearHistory": "清除所有歷史記錄",
+  "settingsClearConfirm": "確定要清除所有記錄嗎？此操作無法撤銷。",
+  "settingsAbout": "關於",
+  "settingsVersion": "Version 1.0.0",
+  "errorApi": "辨識失敗，請重試",
+  "errorNoCamera": "無法使用相機",
+  "errorNetwork": "請檢查網絡連接",
+  "retry": "重試",
+  "back": "返回",
+  "toneFirst": "第一聲（陰平）",
+  "toneSecond": "第二聲（陽平）",
+  "toneThird": "第三聲（上聲）",
+  "toneFourth": "第四聲（去聲）",
+  "toneLight": "輕聲",
+  "startQuiz": "開始測驗",
+  "generateQuizLoading": "正在生成測驗…",
+  "todayStats": "今日學習統計"
+}
