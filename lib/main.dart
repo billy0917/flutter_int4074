@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'services/storage_service.dart';
+import 'services/sense_voice_service.dart';
 import 'config/theme.dart';
 import 'app.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  // Start STT model init in background so it's ready when needed
+  SenseVoiceService.instance.init();
   runApp(const AppLoader());
 }
 

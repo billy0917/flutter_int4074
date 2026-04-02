@@ -106,5 +106,35 @@
   "toneLight": "Neutral Tone",
   "startQuiz": "Start Quiz",
   "generateQuizLoading": "Generating quiz…",
-  "todayStats": "Today's Stats"
+  "todayStats": "Today's Stats",
+  "featurePhrases": "Phrases",
+  "featurePhrasesSub": "Daily Phrases",
+  "phraseLearningTitle": "Daily Phrase Learning",
+  "phraseCategoryCount": "{count} phrases",
+  "@phraseCategoryCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "phraseListenAgain": "Listen again",
+  "phraseShowTranslation": "Show translation",
+  "phraseHideTranslation": "Hide translation",
+  "phrasePrevious": "Previous",
+  "phraseNext": "Next",
+  "phraseFinish": "Done",
+  "phraseListening": "Listening…",
+  "phraseTapToSpeak": "Tap mic to speak",
+  "phraseStopRecording": "Tap to stop",
+  "phraseSttError": "Speech recognition error",
+  "phraseSttUnavailable": "Cannot use speech recognition, check mic permission",
+  "phraseScoreExcellent": "Excellent! Very accurate!",
+  "phraseScoreGood": "Good job! Keep going!",
+  "phraseScoreTryAgain": "Try again, you got this!",
+  "phraseScoreRetry": "Didn't catch that, try again",
+  "phraseYouSaid": "You said: {text}",
+  "@phraseYouSaid": {
+    "placeholders": {
+      "text": {"type": "String"}
+    }
+  }
 }

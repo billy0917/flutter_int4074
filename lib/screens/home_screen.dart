@@ -229,12 +229,12 @@ class _HomeScreenState extends State<HomeScreen>
                           Navigator.pushNamed(context, AppRoutes.history),
                     ),
                     FeatureCard(
-                      emoji: '⭐',
-                      titleZh: l.featureFavorites,
-                      titleEn: l.featureFavoritesSub,
-                      color: AppColors.star.withOpacity(0.85),
-                      comingSoon: true,
-                      onTap: () => _showComingSoon(context),
+                      emoji: '🗣️',
+                      titleZh: l.featurePhrases,
+                      titleEn: l.featurePhrasesSub,
+                      color: AppColors.tone2.withOpacity(0.85),
+                      onTap: () => Navigator.pushNamed(
+                          context, AppRoutes.phraseCategories),
                     ),
                   ],
                 ),

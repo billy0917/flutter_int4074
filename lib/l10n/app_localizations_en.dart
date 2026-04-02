@@ -258,4 +258,69 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todayStats => 'Today\'s Stats';
+
+  @override
+  String get featurePhrases => 'Phrases';
+
+  @override
+  String get featurePhrasesSub => 'Daily Phrases';
+
+  @override
+  String get phraseLearningTitle => 'Daily Phrase Learning';
+
+  @override
+  String phraseCategoryCount(int count) {
+    return '$count phrases';
+  }
+
+  @override
+  String get phraseListenAgain => 'Listen again';
+
+  @override
+  String get phraseShowTranslation => 'Show translation';
+
+  @override
+  String get phraseHideTranslation => 'Hide translation';
+
+  @override
+  String get phrasePrevious => 'Previous';
+
+  @override
+  String get phraseNext => 'Next';
+
+  @override
+  String get phraseFinish => 'Done';
+
+  @override
+  String get phraseListening => 'Listening…';
+
+  @override
+  String get phraseTapToSpeak => 'Tap mic to speak';
+
+  @override
+  String get phraseStopRecording => 'Tap to stop';
+
+  @override
+  String get phraseSttError => 'Speech recognition error';
+
+  @override
+  String get phraseSttUnavailable =>
+      'Cannot use speech recognition, check mic permission';
+
+  @override
+  String get phraseScoreExcellent => 'Excellent! Very accurate!';
+
+  @override
+  String get phraseScoreGood => 'Good job! Keep going!';
+
+  @override
+  String get phraseScoreTryAgain => 'Try again, you got this!';
+
+  @override
+  String get phraseScoreRetry => 'Didn\'t catch that, try again';
+
+  @override
+  String phraseYouSaid(String text) {
+    return 'You said: $text';
+  }
 }

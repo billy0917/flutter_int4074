@@ -257,4 +257,68 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get todayStats => '今日學習統計';
+
+  @override
+  String get featurePhrases => '日常用語';
+
+  @override
+  String get featurePhrasesSub => '讀法學習';
+
+  @override
+  String get phraseLearningTitle => '日常用語讀法學習';
+
+  @override
+  String phraseCategoryCount(int count) {
+    return '$count 個詞語';
+  }
+
+  @override
+  String get phraseListenAgain => '再聽一次';
+
+  @override
+  String get phraseShowTranslation => '顯示翻譯';
+
+  @override
+  String get phraseHideTranslation => '隱藏翻譯';
+
+  @override
+  String get phrasePrevious => '上一個';
+
+  @override
+  String get phraseNext => '下一個';
+
+  @override
+  String get phraseFinish => '完成';
+
+  @override
+  String get phraseListening => '聆聽中…';
+
+  @override
+  String get phraseTapToSpeak => '點擊麦克風';
+
+  @override
+  String get phraseStopRecording => '點擊停止';
+
+  @override
+  String get phraseSttError => '語音識別出錯';
+
+  @override
+  String get phraseSttUnavailable => '無法使用語音識別，請檢查麦克風權限';
+
+  @override
+  String get phraseScoreExcellent => '太棒了！非常標準！';
+
+  @override
+  String get phraseScoreGood => '不錯！繼續加油！';
+
+  @override
+  String get phraseScoreTryAgain => '再試一次，你可以的！';
+
+  @override
+  String get phraseScoreRetry => '沒有聽清，再來一次吧';
+
+  @override
+  String phraseYouSaid(String text) {
+    return '你說的是：$text';
+  }
 }

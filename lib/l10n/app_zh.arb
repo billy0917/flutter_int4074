@@ -106,5 +106,35 @@
   "toneLight": "輕聲",
   "startQuiz": "開始測驗",
   "generateQuizLoading": "正在生成測驗…",
-  "todayStats": "今日學習統計"
+  "todayStats": "今日學習統計",
+  "featurePhrases": "日常用語",
+  "featurePhrasesSub": "讀法學習",
+  "phraseLearningTitle": "日常用語讀法學習",
+  "phraseCategoryCount": "{count} 個詞語",
+  "@phraseCategoryCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "phraseListenAgain": "再聽一次",
+  "phraseShowTranslation": "顯示翻譯",
+  "phraseHideTranslation": "隱藏翻譯",
+  "phrasePrevious": "上一個",
+  "phraseNext": "下一個",
+  "phraseFinish": "完成",
+  "phraseListening": "聆聽中…",
+  "phraseTapToSpeak": "點擊麦克風",
+  "phraseStopRecording": "點擊停止",
+  "phraseSttError": "語音識別出錯",
+  "phraseSttUnavailable": "無法使用語音識別，請檢查麦克風權限",
+  "phraseScoreExcellent": "太棒了！非常標準！",
+  "phraseScoreGood": "不錯！繼續加油！",
+  "phraseScoreTryAgain": "再試一次，你可以的！",
+  "phraseScoreRetry": "沒有聽清，再來一次吧",
+  "phraseYouSaid": "你說的是：{text}",
+  "@phraseYouSaid": {
+    "placeholders": {
+      "text": {"type": "String"}
+    }
+  }
 }

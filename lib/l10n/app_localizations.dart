@@ -577,6 +577,126 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'今日學習統計'**
   String get todayStats;
+
+  /// No description provided for @featurePhrases.
+  ///
+  /// In zh, this message translates to:
+  /// **'日常用語'**
+  String get featurePhrases;
+
+  /// No description provided for @featurePhrasesSub.
+  ///
+  /// In zh, this message translates to:
+  /// **'讀法學習'**
+  String get featurePhrasesSub;
+
+  /// No description provided for @phraseLearningTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'日常用語讀法學習'**
+  String get phraseLearningTitle;
+
+  /// No description provided for @phraseCategoryCount.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 個詞語'**
+  String phraseCategoryCount(int count);
+
+  /// No description provided for @phraseListenAgain.
+  ///
+  /// In zh, this message translates to:
+  /// **'再聽一次'**
+  String get phraseListenAgain;
+
+  /// No description provided for @phraseShowTranslation.
+  ///
+  /// In zh, this message translates to:
+  /// **'顯示翻譯'**
+  String get phraseShowTranslation;
+
+  /// No description provided for @phraseHideTranslation.
+  ///
+  /// In zh, this message translates to:
+  /// **'隱藏翻譯'**
+  String get phraseHideTranslation;
+
+  /// No description provided for @phrasePrevious.
+  ///
+  /// In zh, this message translates to:
+  /// **'上一個'**
+  String get phrasePrevious;
+
+  /// No description provided for @phraseNext.
+  ///
+  /// In zh, this message translates to:
+  /// **'下一個'**
+  String get phraseNext;
+
+  /// No description provided for @phraseFinish.
+  ///
+  /// In zh, this message translates to:
+  /// **'完成'**
+  String get phraseFinish;
+
+  /// No description provided for @phraseListening.
+  ///
+  /// In zh, this message translates to:
+  /// **'聆聽中…'**
+  String get phraseListening;
+
+  /// No description provided for @phraseTapToSpeak.
+  ///
+  /// In zh, this message translates to:
+  /// **'點擊麦克風'**
+  String get phraseTapToSpeak;
+
+  /// No description provided for @phraseStopRecording.
+  ///
+  /// In zh, this message translates to:
+  /// **'點擊停止'**
+  String get phraseStopRecording;
+
+  /// No description provided for @phraseSttError.
+  ///
+  /// In zh, this message translates to:
+  /// **'語音識別出錯'**
+  String get phraseSttError;
+
+  /// No description provided for @phraseSttUnavailable.
+  ///
+  /// In zh, this message translates to:
+  /// **'無法使用語音識別，請檢查麦克風權限'**
+  String get phraseSttUnavailable;
+
+  /// No description provided for @phraseScoreExcellent.
+  ///
+  /// In zh, this message translates to:
+  /// **'太棒了！非常標準！'**
+  String get phraseScoreExcellent;
+
+  /// No description provided for @phraseScoreGood.
+  ///
+  /// In zh, this message translates to:
+  /// **'不錯！繼續加油！'**
+  String get phraseScoreGood;
+
+  /// No description provided for @phraseScoreTryAgain.
+  ///
+  /// In zh, this message translates to:
+  /// **'再試一次，你可以的！'**
+  String get phraseScoreTryAgain;
+
+  /// No description provided for @phraseScoreRetry.
+  ///
+  /// In zh, this message translates to:
+  /// **'沒有聽清，再來一次吧'**
+  String get phraseScoreRetry;
+
+  /// No description provided for @phraseYouSaid.
+  ///
+  /// In zh, this message translates to:
+  /// **'你說的是：{text}'**
+  String phraseYouSaid(String text);
 }
 
 class _AppLocalizationsDelegate

@@ -8,9 +8,12 @@ import '../screens/quiz_result_screen.dart';
 import '../screens/history_screen.dart';
 import '../screens/history_detail_screen.dart';
 import '../screens/settings_screen.dart';
+import '../screens/phrase_categories_screen.dart';
+import '../screens/phrase_learning_screen.dart';
 import '../models/recognition_result.dart';
 import '../models/learning_record.dart';
 import '../models/quiz_question.dart';
+import '../models/daily_phrase.dart';
 
 class AppRoutes {
   static const splash = '/';
@@ -22,6 +25,8 @@ class AppRoutes {
   static const history = '/history';
   static const historyDetail = '/history-detail';
   static const settings = '/settings';
+  static const phraseCategories = '/phrase-categories';
+  static const phraseLearning = '/phrase-learning';
 
   static Route<dynamic> generateRoute(RouteSettings settings_) {
     switch (settings_.name) {
@@ -56,6 +61,11 @@ class AppRoutes {
         return _slideRoute(HistoryDetailScreen(record: record));
       case AppRoutes.settings:
         return _slideRoute(const SettingsScreen());
+      case phraseCategories:
+        return _slideRoute(const PhraseCategoriesScreen());
+      case phraseLearning:
+        final category = settings_.arguments as PhraseCategory;
+        return _slideRoute(PhraseLearningScreen(category: category));
       default:
         return _fadeRoute(const SplashScreen());
     }

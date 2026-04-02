@@ -21,6 +21,8 @@ dependencies:
   image_picker: ^1.0.7
   http: ^1.2.0
   flutter_tts: ^3.8.5
+  record: ^6.2.0
+  sherpa_onnx: ^1.10.40
   path_provider: ^2.1.2
   uuid: ^4.3.3
 
@@ -35,10 +37,11 @@ flutter:
   generate: true
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/streaming_zh_model/encoder.int8.onnx
+    - assets/streaming_zh_model/decoder.onnx
+    - assets/streaming_zh_model/joiner.int8.onnx
+    - assets/streaming_zh_model/tokens.txt
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
