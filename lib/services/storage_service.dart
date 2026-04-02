@@ -77,4 +77,90 @@ class StorageService {
   static Future<void> setTtsSpeed(double speed) async {
     await _settingsBox.put('ttsSpeed', speed);
   }
+
+  // ─── Phrase Practice Records ────────────────────────────────────────────────
+
+  static const String _phraseScoresKey = 'phrase_scores';
+
+  /// Get all phrase scores as {categoryId: {phraseIndex: {best, attempts, last}}}.
+  static Map<String, dynamic> _getPhraseScoresMap() {
+    final raw = _settingsBox.get(_phraseScoresKey);
+    if (raw == null) return {};
+    // Hive stores as dynamic; deep-cast to Map<String, dynamic>.
+    return Map<String, dynamic>.from(
+      (raw as Map).map((k, v) => MapEntry(
+        k.toString(),
+        Map<String, dynamic>.from(
+          (v as Map).map((k2, v2) => MapEntry(
+            k2.toString(),
+            Map<String, dynamic>.from(v2 as Map),
+          )),
+        ),
+      )),
+    );
+  }
+
+  /// Record a phrase practice attempt. Keeps best score and total attempts.
+  static Future<void> savePhraseScore({
+    required String categoryId,
+    required int phraseIndex,
+    required double score,
+  }) async {
+    final map = _getPhraseScoresMap();
+    final catMap = Map<String, dynamic>.from(
+      map[categoryId] as Map<String, dynamic>? ?? {},
+    );
+    final key = phraseIndex.toString();
+    final existing = catMap[key] as Map<String, dynamic>?;
+    final bestScore = existing != null
+        ? (score > (existing['best'] as num)) ? score : (existing['best'] as num).toDouble()
+        : score;
+    final attempts = existing != null ? (existing['attempts'] as int) + 1 : 1;
+    catMap[key] = {
+      'best': bestScore,
+      'attempts': attempts,
+      'last': DateTime.now().toIso8601String(),
+    };
+    map[categoryId] = catMap;
+    await _settingsBox.put(_phraseScoresKey, map);
+  }
+
+  /// Get the best score for a specific phrase. Returns null if never attempted.
+  static double? getPhraseBestScore(String categoryId, int phraseIndex) {
+    final map = _getPhraseScoresMap();
+    final catMap = map[categoryId] as Map<String, dynamic>?;
+    if (catMap == null) return null;
+    final entry = catMap[phraseIndex.toString()] as Map<String, dynamic>?;
+    if (entry == null) return null;
+    return (entry['best'] as num).toDouble();
+  }
+
+  /// Get total attempts for a specific phrase.
+  static int getPhraseAttempts(String categoryId, int phraseIndex) {
+    final map = _getPhraseScoresMap();
+    final catMap = map[categoryId] as Map<String, dynamic>?;
+    if (catMap == null) return 0;
+    final entry = catMap[phraseIndex.toString()] as Map<String, dynamic>?;
+    if (entry == null) return 0;
+    return entry['attempts'] as int;
+  }
+
+  /// Get category summary: {practiced, total, averageBest}.
+  static Map<String, dynamic> getCategorySummary(
+      String categoryId, int totalPhrases) {
+    final map = _getPhraseScoresMap();
+    final catMap = map[categoryId] as Map<String, dynamic>?;
+    if (catMap == null || catMap.isEmpty) {
+      return {'practiced': 0, 'total': totalPhrases, 'averageBest': 0.0};
+    }
+    double sum = 0;
+    for (final entry in catMap.values) {
+      sum += ((entry as Map)['best'] as num).toDouble();
+    }
+    return {
+      'practiced': catMap.length,
+      'total': totalPhrases,
+      'averageBest': sum / catMap.length,
+    };
+  }
 }

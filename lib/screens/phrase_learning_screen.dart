@@ -5,6 +5,8 @@ import '../config/theme.dart';
 import '../models/daily_phrase.dart';
 import '../services/tts_service.dart';
 import '../services/sense_voice_service.dart';
+import '../services/storage_service.dart';
+import '../utils/chinese_convert.dart';
 import '../widgets/clay_button.dart';
 import '../widgets/clay_card.dart';
 import 'package:flutter_app/l10n/app_localizations.dart';
@@ -38,6 +40,10 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
   // ── Model state
   bool _isModelReady = false;
 
+  // ── Score tracking
+  final Map<int, double> _bestScores = {};
+  final Map<int, int> _attemptCounts = {};
+
   List<DailyPhrase> get _phrases => widget.category.phrases;
   DailyPhrase get _current => _phrases[_currentIndex];
 
@@ -46,6 +52,7 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
     super.initState();
     _tts.init();
     _isModelReady = _stt.isModelReady;
+    _loadSavedScores();
     _partialResultSubscription = _stt.partialResults.listen((text) {
       if (!mounted) {
         return;
@@ -88,6 +95,16 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
     );
   }
 
+  void _loadSavedScores() {
+    final catId = widget.category.id;
+    for (var i = 0; i < _phrases.length; i++) {
+      final best = StorageService.getPhraseBestScore(catId, i);
+      if (best != null) _bestScores[i] = best;
+      final att = StorageService.getPhraseAttempts(catId, i);
+      if (att > 0) _attemptCounts[i] = att;
+    }
+  }
+
   /// Initialize STT model (copy from assets on first launch).
   Future<void> _initModel() async {
     final ok = await _stt.init();
@@ -95,6 +112,91 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
     setState(() {
       _isModelReady = ok;
     });
+  }
+
+  void _showSummaryDialog() {
+    final practiced = _bestScores.length;
+    final total = _phrases.length;
+    double avgScore = 0;
+    if (practiced > 0) {
+      avgScore = _bestScores.values.reduce((a, b) => a + b) / practiced;
+    }
+    final emoji = avgScore >= 80
+        ? '🎉'
+        : avgScore >= 60
+            ? '👍'
+            : avgScore >= 30
+                ? '💪'
+                : '📚';
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text('$emoji 練習完成！'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _SummaryRow(label: '總詞語數', value: '$total'),
+            _SummaryRow(label: '已練習', value: '$practiced'),
+            _SummaryRow(
+              label: '平均最高分',
+              value: practiced > 0 ? '${avgScore.round()} 分' : '—',
+            ),
+            const SizedBox(height: 12),
+            // Per-phrase breakdown
+            ...List.generate(_phrases.length, (i) {
+              final best = _bestScores[i];
+              final att = _attemptCounts[i] ?? 0;
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        _phrases[i].chinese,
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ),
+                    if (best != null)
+                      Text(
+                        '${best.round()} 分 ($att 次)',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: best >= 80
+                              ? AppColors.success
+                              : best >= 60
+                                  ? AppColors.primary
+                                  : AppColors.star,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      )
+                    else
+                      const Text(
+                        '未練習',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textLight,
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            }),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              Navigator.pop(context);
+            },
+            child: const Text('返回'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _goTo(int index) async {
@@ -214,18 +316,36 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
       _recognizedText = recognized;
       _score = score;
       _hasAttempted = true;
+
+      // Update local best score
+      final prev = _bestScores[_currentIndex];
+      if (prev == null || score > prev) {
+        _bestScores[_currentIndex] = score;
+      }
+      _attemptCounts[_currentIndex] =
+          (_attemptCounts[_currentIndex] ?? 0) + 1;
     });
     HapticFeedback.lightImpact();
+
+    // Persist to Hive
+    StorageService.savePhraseScore(
+      categoryId: widget.category.id,
+      phraseIndex: _currentIndex,
+      score: score,
+    );
   }
 
   /// Scoring algorithm inspired by voice3's ScoringEngine:
   /// score = textMatchScore * 0.6 + confidence * 0.4 * 100
+  ///
+  /// Both recognized (simplified from STT) and expected (traditional from
+  /// phrase data) are normalised to simplified Chinese before comparison.
   double _calculateScore(
       String recognized, String expected, double confidence) {
     if (recognized.isEmpty) return 0;
 
-    final recNorm = _normalize(recognized);
-    final expNorm = _normalize(expected);
+    final recNorm = _normalize(ChineseConvert.toSimplified(recognized));
+    final expNorm = _normalize(ChineseConvert.toSimplified(expected));
 
     // Exact match
     if (recNorm == expNorm) {
@@ -414,7 +534,7 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
                           : AppColors.success,
                       onTap: _currentIndex < _phrases.length - 1
                           ? () => _goTo(_currentIndex + 1)
-                          : () => Navigator.pop(context),
+                          : _showSummaryDialog,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -451,11 +571,44 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
 
   Widget _buildPhraseCard() {
     final l = AppLocalizations.of(context)!;
+    final bestScore = _bestScores[_currentIndex];
+    final attempts = _attemptCounts[_currentIndex] ?? 0;
     return ClayCard(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Best score badge
+          if (bestScore != null) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.emoji_events_rounded,
+                  size: 16,
+                  color: bestScore >= 80
+                      ? AppColors.success
+                      : bestScore >= 60
+                          ? AppColors.primary
+                          : AppColors.star,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  '最高 ${bestScore.round()} 分 · 練習 $attempts 次',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: bestScore >= 80
+                        ? AppColors.success
+                        : bestScore >= 60
+                            ? AppColors.primary
+                            : AppColors.star,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+          ],
           // Pinyin
           Text(
             _current.pinyin,
@@ -837,6 +990,34 @@ class _ScoreDisplay extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+// ── Summary dialog row
+class _SummaryRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _SummaryRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label,
+              style: const TextStyle(
+                  fontSize: 15, color: AppColors.textMedium)),
+          Text(value,
+              style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textDark)),
+        ],
+      ),
     );
   }
 }

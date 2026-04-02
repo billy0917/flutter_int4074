@@ -4,6 +4,7 @@ import '../config/theme.dart';
 import '../config/routes.dart';
 import '../providers/history_provider.dart';
 import '../models/learning_record.dart';
+import '../services/sense_voice_service.dart';
 import '../widgets/clay_card.dart';
 import '../widgets/feature_card.dart';
 import '../utils/constants.dart';
@@ -29,6 +30,9 @@ class _HomeScreenState extends State<HomeScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) context.read<HistoryProvider>().loadRecords();
     });
+    // Pre-load STT model in the background so it's ready when the user
+    // enters phrase learning. Fire-and-forget — does not block the UI.
+    SenseVoiceService.instance.init();
 
     _staggerController = AnimationController(
       vsync: this,
