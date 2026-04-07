@@ -1,0 +1,21 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Gradient Background -->
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF9A9E"/>
+      <stop offset="100%" stop-color="#FECFEF"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  
+  <!-- Book Icon -->
+  <path d="M128 160 Q 256 128 384 160 V 416 Q 256 384 128 416 Z" fill="#FFFFFF" opacity="0.9"/>
+  <path d="M256 144 V 400" stroke="#FF9A9E" stroke-width="12" stroke-linecap="round"/>
+  
+  <!-- Star -->
+  <path d="M256 220 L273 273 L328 273 L283 306 L300 359 L256 326 L212 359 L229 306 L184 273 L239 273 Z" fill="#FFD700"/>
+  
+  <!-- Text -->
+  <text x="256" y="96" font-family="Arial, sans-serif" font-size="72" font-weight="bold" fill="#FFFFFF" text-anchor="middle">INT</text>
+  <text x="256" y="464" font-family="Arial, sans-serif" font-size="64" font-weight="bold" fill="#FFFFFF" text-anchor="middle">4074</text>
+</svg>

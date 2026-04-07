@@ -13,11 +13,11 @@
     <!-- Microphone permission (required for speech recognition) -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
-    <!-- Camera feature — mark as not required so devices without camera can still install -->
+    <!-- Camera feature 鈥?mark as not required so devices without camera can still install -->
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <application
-        android:label="flutter_app"
+        android:label="INT4074"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
