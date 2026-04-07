@@ -1,12 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../config/theme.dart';
 import '../config/routes.dart';
+import '../config/game_config.dart';
 import '../providers/history_provider.dart';
 import '../models/learning_record.dart';
 import '../services/sense_voice_service.dart';
-import '../widgets/clay_card.dart';
-import '../widgets/feature_card.dart';
+import '../services/storage_service.dart';
 import '../utils/constants.dart';
 import 'package:flutter_app/l10n/app_localizations.dart';
 
@@ -25,29 +27,32 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
-    // Defer loadRecords until after the first frame so Provider's
-    // notifyListeners() doesn't fire during the build phase.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) context.read<HistoryProvider>().loadRecords();
     });
-    // Pre-load STT model in the background so it's ready when the user
-    // enters phrase learning. Fire-and-forget — does not block the UI.
-    SenseVoiceService.instance.init();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(
+        Future<void>.delayed(
+          const Duration(milliseconds: 900),
+          () => SenseVoiceService.instance.init(),
+        ),
+      );
+    });
 
     _staggerController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 900),
     );
 
     _slideAnimations = List.generate(
       6,
       (i) => Tween<Offset>(
-        begin: const Offset(0, 0.4),
+        begin: const Offset(0, 0.35),
         end: Offset.zero,
       ).animate(
         CurvedAnimation(
           parent: _staggerController,
-          curve: Interval(i * 0.1, (i * 0.1) + 0.5, curve: Curves.easeOut),
+          curve: Interval(i * 0.08, (i * 0.08) + 0.5, curve: Curves.easeOut),
         ),
       ),
     );
@@ -68,177 +73,234 @@ class _HomeScreenState extends State<HomeScreen>
     return l.homeGreetingEvening;
   }
 
-  void _showComingSoon(BuildContext ctx) {
-    final l = AppLocalizations.of(ctx)!;
-    ScaffoldMessenger.of(ctx).showSnackBar(
-      SnackBar(
-        content: Text(l.comingSoonMsg),
-        backgroundColor: AppColors.primary,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     final history = context.watch<HistoryProvider>();
+    final xp = StorageService.getTotalXp();
+    final level = GameConfig.levelForXp(xp);
+    final streak = StorageService.getStreak();
+    final totalStars = StorageService.getTotalStars();
 
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppConstants.pagePadding),
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppConstants.pagePadding, vertical: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Top bar
+              // ── Header
               _slideIn(
                 0,
                 Row(
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _greeting(l),
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textDark,
+                    // Level avatar
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.08),
+                            offset: const Offset(2, 3),
+                            blurRadius: 6,
                           ),
-                        ),
-                        Text(
-                          l.homeSubtitle,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: AppColors.textMedium,
+                          BoxShadow(
+                            color: Colors.white.withValues(alpha: 0.7),
+                            offset: const Offset(-2, -2),
+                            blurRadius: 4,
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(level.emoji,
+                          style: const TextStyle(fontSize: 26)),
                     ),
-                    const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.settings_rounded,
-                          color: AppColors.textMedium, size: 28),
-                      onPressed: () =>
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _greeting(l),
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textDark,
+                              height: 1.2,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Lv.${level.level} ${level.titleZh}',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: AppColors.textMedium,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    _ClayIconButton(
+                      icon: Icons.settings_rounded,
+                      onTap: () =>
                           Navigator.pushNamed(context, AppRoutes.settings),
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 18),
 
-              // ── Stats card
+              // ── Stats row
               _slideIn(
                 1,
-                ClayCard(
-                  color: AppColors.primary.withOpacity(0.15),
-                  child: Row(
-                    children: [
-                      const Text('🎯', style: TextStyle(fontSize: 28)),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l.todayStats,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: AppColors.textMedium,
-                            ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _StatChip(
+                        emoji: '🔥',
+                        value: '$streak',
+                        label: l.statsStreak(streak).replaceAll(
+                            RegExp(r'[0-9]+\s*'), ''),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _StatChip(
+                        emoji: '⭐',
+                        value: '$totalStars',
+                        label: '星星',
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _StatChip(
+                        emoji: '📚',
+                        value: '${history.totalWords}',
+                        label: '已學詞語',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 22),
+
+              // ── Hero: Camera / Snap feature
+              _slideIn(
+                2,
+                GestureDetector(
+                  onTap: () =>
+                      Navigator.pushNamed(context, AppRoutes.camera),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(22),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color(0xFFFF9A56),
+                          Color(0xFFFF7535),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color:
+                              AppColors.primary.withValues(alpha: 0.35),
+                          offset: const Offset(0, 8),
+                          blurRadius: 20,
+                        ),
+                        BoxShadow(
+                          color: Colors.white.withValues(alpha: 0.25),
+                          offset: const Offset(-3, -3),
+                          blurRadius: 6,
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.25),
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                          const SizedBox(height: 4),
-                          Row(
+                          alignment: Alignment.center,
+                          child: const Text('📷',
+                              style: TextStyle(fontSize: 32)),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                l.statsWordsLearned(history.totalWords),
+                                l.featureSnap,
                                 style: const TextStyle(
-                                  fontSize: 15,
+                                  fontSize: 20,
                                   fontWeight: FontWeight.bold,
-                                  color: AppColors.textDark,
+                                  color: Colors.white,
                                 ),
                               ),
-                              const SizedBox(width: 16),
-                              Container(
-                                width: 1,
-                                height: 16,
-                                color: AppColors.textLight,
-                              ),
-                              const SizedBox(width: 16),
+                              const SizedBox(height: 4),
                               Text(
-                                l.statsStreak(history.currentStreak),
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.textDark,
+                                l.featureSnapSub,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color:
+                                      Colors.white.withValues(alpha: 0.85),
                                 ),
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                    ],
+                        ),
+                        Icon(
+                          Icons.arrow_forward_rounded,
+                          color: Colors.white.withValues(alpha: 0.8),
+                          size: 28,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // ── Main feature grid
-              _slideIn(2, _sectionLabel('── 主要功能 ──')),
-              const SizedBox(height: 10),
+              // ── Secondary features row
               _slideIn(
-                2,
-                GridView.count(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 1.3,
+                3,
+                Row(
                   children: [
-                    FeatureCard(
-                      emoji: '📷',
-                      titleZh: l.featureSnap,
-                      titleEn: l.featureSnapSub,
-                      color: AppColors.primary.withOpacity(0.85),
-                      onTap: () =>
-                          Navigator.pushNamed(context, AppRoutes.camera),
+                    Expanded(
+                      child: _SecondaryFeatureTile(
+                        emoji: '🗣️',
+                        label: l.featurePhrases,
+                        sublabel: l.featurePhrasesSub,
+                        color: AppColors.tone2,
+                        onTap: () => Navigator.pushNamed(
+                            context, AppRoutes.phraseCategories),
+                      ),
                     ),
-                    FeatureCard(
-                      emoji: '📝',
-                      titleZh: l.featureQuiz,
-                      titleEn: l.featureQuizSub,
-                      color: AppColors.secondary.withOpacity(0.85),
-                      onTap: () {
-                        if (history.records.isEmpty) {
-                          _showComingSoon(context);
-                        } else {
-                          Navigator.pushNamed(context, AppRoutes.camera);
-                        }
-                      },
-                    ),
-                    FeatureCard(
-                      emoji: '📜',
-                      titleZh: l.featureHistory,
-                      titleEn: l.featureHistorySub,
-                      color: AppColors.primaryLight.withOpacity(0.85),
-                      onTap: () =>
-                          Navigator.pushNamed(context, AppRoutes.history),
-                    ),
-                    FeatureCard(
-                      emoji: '🗣️',
-                      titleZh: l.featurePhrases,
-                      titleEn: l.featurePhrasesSub,
-                      color: AppColors.tone2.withOpacity(0.85),
-                      onTap: () => Navigator.pushNamed(
-                          context, AppRoutes.phraseCategories),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _SecondaryFeatureTile(
+                        emoji: '📜',
+                        label: l.featureHistory,
+                        sublabel: l.featureHistorySub,
+                        color: AppColors.primaryLight,
+                        onTap: () => Navigator.pushNamed(
+                            context, AppRoutes.history),
+                      ),
                     ),
                   ],
                 ),
@@ -246,13 +308,23 @@ class _HomeScreenState extends State<HomeScreen>
 
               // ── Recent learned
               if (history.recentRecords.isNotEmpty) ...[
-                const SizedBox(height: 20),
-                _slideIn(3, _sectionLabel('── ${l.recentLearned} ──')),
+                const SizedBox(height: 22),
+                _slideIn(
+                  4,
+                  Text(
+                    l.recentLearned,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textDark,
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 10),
                 _slideIn(
-                  3,
+                  4,
                   SizedBox(
-                    height: 90,
+                    height: 96,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: history.recentRecords.length,
@@ -272,55 +344,10 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
               ],
 
-              // ── Coming soon section
-              const SizedBox(height: 20),
-              _slideIn(4, _sectionLabel('── ${l.moreFeatures} ──')),
-              const SizedBox(height: 10),
-              _slideIn(
-                4,
-                GridView.count(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 1.3,
-                  children: [
-                    FeatureCard(
-                      emoji: '🎮',
-                      titleZh: l.featureGames,
-                      titleEn: l.featureGamesSub,
-                      color: AppColors.success,
-                      comingSoon: true,
-                      onTap: () => _showComingSoon(context),
-                    ),
-                    FeatureCard(
-                      emoji: '🏆',
-                      titleZh: l.featureAchievements,
-                      titleEn: l.featureAchievementsSub,
-                      color: AppColors.tone4,
-                      comingSoon: true,
-                      onTap: () => _showComingSoon(context),
-                    ),
-                  ],
-                ),
-              ),
-
               const SizedBox(height: 24),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _sectionLabel(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 13,
-        color: AppColors.textLight,
-        letterSpacing: 1,
       ),
     );
   }
@@ -337,6 +364,184 @@ class _HomeScreenState extends State<HomeScreen>
   }
 }
 
+// ── Clay icon button (settings etc.)
+class _ClayIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _ClayIconButton({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(13),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              offset: const Offset(3, 3),
+              blurRadius: 6,
+            ),
+            BoxShadow(
+              color: Colors.white.withValues(alpha: 0.7),
+              offset: const Offset(-2, -2),
+              blurRadius: 4,
+            ),
+          ],
+        ),
+        alignment: Alignment.center,
+        child: Icon(icon, color: AppColors.textMedium, size: 22),
+      ),
+    );
+  }
+}
+
+// ── Stat chip (streak, stars, words)
+class _StatChip extends StatelessWidget {
+  final String emoji;
+  final String value;
+  final String label;
+
+  const _StatChip({
+    required this.emoji,
+    required this.value,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            offset: const Offset(3, 3),
+            blurRadius: 6,
+          ),
+          BoxShadow(
+            color: Colors.white.withValues(alpha: 0.7),
+            offset: const Offset(-2, -2),
+            blurRadius: 4,
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 20)),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textDark,
+            ),
+          ),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 10,
+              color: AppColors.textLight,
+            ),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Secondary feature tile (phrase / history)
+class _SecondaryFeatureTile extends StatelessWidget {
+  final String emoji;
+  final String label;
+  final String sublabel;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _SecondaryFeatureTile({
+    required this.emoji,
+    required this.label,
+    required this.sublabel,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.cardBg,
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              offset: const Offset(4, 4),
+              blurRadius: 8,
+            ),
+            BoxShadow(
+              color: Colors.white.withValues(alpha: 0.75),
+              offset: const Offset(-3, -3),
+              blurRadius: 6,
+            ),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              offset: const Offset(0, 6),
+              blurRadius: 12,
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(13),
+              ),
+              alignment: Alignment.center,
+              child: Text(emoji, style: const TextStyle(fontSize: 24)),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textDark,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              sublabel,
+              style: const TextStyle(
+                fontSize: 11,
+                color: AppColors.textMedium,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Recent learned item
 class _RecentItem extends StatelessWidget {
   final LearningRecord record;
   final VoidCallback onTap;
@@ -348,16 +553,21 @@ class _RecentItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 72,
+        width: 78,
         margin: const EdgeInsets.only(right: 10),
         decoration: BoxDecoration(
           color: AppColors.cardBg,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 8,
-              offset: const Offset(2, 4),
+              color: Colors.black.withValues(alpha: 0.08),
+              offset: const Offset(3, 3),
+              blurRadius: 6,
+            ),
+            BoxShadow(
+              color: Colors.white.withValues(alpha: 0.6),
+              offset: const Offset(-2, -2),
+              blurRadius: 4,
             ),
           ],
         ),
@@ -369,18 +579,21 @@ class _RecentItem extends StatelessWidget {
                   ? record.objectNameZh.substring(0, 1)
                   : '?',
               style: const TextStyle(
-                fontSize: 28,
+                fontSize: 30,
                 color: AppColors.textDark,
               ),
             ),
-            const SizedBox(height: 2),
-            Text(
-              record.objectNameZh.length > 3
-                  ? record.objectNameZh.substring(0, 3)
-                  : record.objectNameZh,
-              style: const TextStyle(
-                  fontSize: 10, color: AppColors.textMedium),
-              overflow: TextOverflow.ellipsis,
+            const SizedBox(height: 4),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: Text(
+                record.objectNameZh.length > 3
+                    ? record.objectNameZh.substring(0, 3)
+                    : record.objectNameZh,
+                style: const TextStyle(
+                    fontSize: 11, color: AppColors.textMedium),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),

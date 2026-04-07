@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:isolate';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -25,6 +26,22 @@ class SttResult {
         success = false,
         error = message,
         detectedLanguage = '';
+}
+
+class _WorkerInitMessage {
+  final SendPort replyPort;
+  final String encoderPath;
+  final String decoderPath;
+  final String joinerPath;
+  final String tokensPath;
+
+  const _WorkerInitMessage({
+    required this.replyPort,
+    required this.encoderPath,
+    required this.decoderPath,
+    required this.joinerPath,
+    required this.tokensPath,
+  });
 }
 
 /// Real-time Mandarin STT using a Chinese-only streaming Zipformer model.
@@ -56,10 +73,14 @@ class SenseVoiceService {
   final StreamController<String> _partialResultsController =
       StreamController<String>.broadcast();
 
-  sherpa.OnlineRecognizer? _recognizer;
-  sherpa.OnlineStream? _onlineStream;
   StreamSubscription<Uint8List>? _audioSubscription;
   Completer<void>? _audioDoneCompleter;
+  Completer<bool>? _initCompleter;
+  Completer<String>? _finalResultCompleter;
+  Completer<SendPort>? _workerReadyCompleter;
+  ReceivePort? _workerReceivePort;
+  SendPort? _workerSendPort;
+  Isolate? _workerIsolate;
 
   bool _isRecording = false;
   bool _isModelReady = false;
@@ -105,48 +126,115 @@ class SenseVoiceService {
     }
   }
 
+  Future<void> _ensureWorker(String modelPath) async {
+    if (_workerSendPort != null) {
+      return;
+    }
+    if (_workerReadyCompleter != null) {
+      await _workerReadyCompleter!.future;
+      return;
+    }
+
+    _workerReceivePort?.close();
+    final receivePort = ReceivePort();
+    _workerReceivePort = receivePort;
+    _workerReceivePort!.listen(_handleWorkerMessage);
+    _workerReadyCompleter = Completer<SendPort>();
+
+    final encoderPath = '$modelPath/$_encoderFile';
+    final decoderPath = '$modelPath/$_decoderFile';
+    final joinerPath = '$modelPath/$_joinerFile';
+    final tokensPath = '$modelPath/$_tokensFile';
+
+    _workerIsolate = await Isolate.spawn<_WorkerInitMessage>(
+      _sttWorkerMain,
+      _WorkerInitMessage(
+        replyPort: receivePort.sendPort,
+        encoderPath: encoderPath,
+        decoderPath: decoderPath,
+        joinerPath: joinerPath,
+        tokensPath: tokensPath,
+      ),
+      debugName: 'pinpin_stt_worker',
+    );
+
+    await _workerReadyCompleter!.future.timeout(
+      const Duration(seconds: 5),
+      onTimeout: () => throw TimeoutException('STT worker startup timed out'),
+    );
+  }
+
+  void _handleWorkerMessage(dynamic message) {
+    if (message is SendPort) {
+      _workerSendPort = message;
+      _workerReadyCompleter?.complete(message);
+      return;
+    }
+
+    if (message is! Map) {
+      return;
+    }
+
+    final type = message['type'];
+    switch (type) {
+      case 'init_ok':
+        _isInitializing = false;
+        _isModelReady = true;
+        _initCompleter?.complete(true);
+        _initCompleter = null;
+        debugPrint('[StreamingSTT] Recognizer ready in worker isolate');
+        break;
+      case 'init_error':
+        _isInitializing = false;
+        _isModelReady = false;
+        _initCompleter?.complete(false);
+        _initCompleter = null;
+        debugPrint('[StreamingSTT] Init error: ${message['error']}');
+        break;
+      case 'partial':
+        final partial = (message['text'] as String?) ?? '';
+        if (partial != _latestPartialText) {
+          _latestPartialText = partial;
+          _partialResultsController.add(partial);
+        }
+        break;
+      case 'final':
+        _finalResultCompleter?.complete((message['text'] as String?) ?? '');
+        _finalResultCompleter = null;
+        break;
+      case 'stream_error':
+        _finalResultCompleter?.completeError(
+          StateError((message['error'] as String?) ?? 'Unknown STT error'),
+        );
+        _finalResultCompleter = null;
+        break;
+    }
+  }
+
   Future<bool> init() async {
-    if (_isModelReady && _recognizer != null) {
+    if (_isModelReady && _workerSendPort != null) {
       return true;
     }
     if (_isInitializing) {
-      return false;
+      return await _initCompleter?.future ?? false;
     }
 
+    _initCompleter = Completer<bool>();
     _isInitializing = true;
     try {
       await _copyAssetsIfNeeded();
 
       final dir = await _getModelDir();
-      sherpa.initBindings();
-
-      _recognizer?.free();
-      _recognizer = sherpa.OnlineRecognizer(
-        sherpa.OnlineRecognizerConfig(
-          model: sherpa.OnlineModelConfig(
-            transducer: sherpa.OnlineTransducerModelConfig(
-              encoder: '${dir.path}/$_encoderFile',
-              decoder: '${dir.path}/$_decoderFile',
-              joiner: '${dir.path}/$_joinerFile',
-            ),
-            tokens: '${dir.path}/$_tokensFile',
-            numThreads: 2,
-            debug: false,
-            modelType: 'zipformer2',
-          ),
-          decodingMethod: 'greedy_search',
-          enableEndpoint: false,
-        ),
-      );
-
-      _isModelReady = true;
-      _isInitializing = false;
-      debugPrint('[StreamingSTT] Recognizer ready');
-      return true;
+      await _ensureWorker(dir.path);
+      _workerSendPort?.send(const {'type': 'init'});
+      return await _initCompleter!.future;
     } catch (e) {
       debugPrint('[StreamingSTT] Init error: $e');
       _isModelReady = false;
       _isInitializing = false;
+      _initCompleter?.complete(false);
+      _initCompleter = null;
+      _workerReadyCompleter = null;
       return false;
     }
   }
@@ -158,16 +246,15 @@ class SenseVoiceService {
         return false;
       }
 
-      if (_recognizer == null && !await init()) {
+      if (!await init()) {
         return false;
       }
 
       await _audioSubscription?.cancel();
-      _resetLiveStream();
 
       _latestPartialText = '';
       _partialResultsController.add('');
-      _onlineStream = _recognizer!.createStream();
+      _workerSendPort?.send(const {'type': 'start_stream'});
       _audioDoneCompleter = Completer<void>();
 
       final audioStream = await _recorder.startStream(
@@ -204,46 +291,18 @@ class SenseVoiceService {
   }
 
   void _handleAudioChunk(Uint8List chunk) {
-    final recognizer = _recognizer;
-    final stream = _onlineStream;
-    if (recognizer == null || stream == null || chunk.isEmpty) {
+    if (chunk.isEmpty || _workerSendPort == null) {
       return;
     }
 
-    final samples = _pcm16ToFloat32(chunk);
-    if (samples.isEmpty) {
-      return;
-    }
-
-    stream.acceptWaveform(samples: samples, sampleRate: _sampleRate);
-
-    while (recognizer.isReady(stream)) {
-      recognizer.decode(stream);
-    }
-
-    final partial = recognizer.getResult(stream).text.trim();
-    if (partial != _latestPartialText) {
-      _latestPartialText = partial;
-      _partialResultsController.add(partial);
-    }
-  }
-
-  Float32List _pcm16ToFloat32(Uint8List bytes) {
-    final sampleCount = bytes.length ~/ 2;
-    final samples = Float32List(sampleCount);
-    final byteData = ByteData.sublistView(bytes);
-
-    for (var i = 0; i < sampleCount; i++) {
-      samples[i] = byteData.getInt16(i * 2, Endian.little) / 32768.0;
-    }
-
-    return samples;
+    _workerSendPort!.send({
+      'type': 'audio_chunk',
+      'audio': TransferableTypedData.fromList([chunk]),
+    });
   }
 
   Future<SttResult> stopAndTranscribe() async {
-    final recognizer = _recognizer;
-    final stream = _onlineStream;
-    if (!_isRecording || recognizer == null || stream == null) {
+    if (!_isRecording || _workerSendPort == null) {
       return const SttResult.failure('Not recording');
     }
 
@@ -261,19 +320,16 @@ class SenseVoiceService {
         );
       }
 
-      stream.inputFinished();
-      while (recognizer.isReady(stream)) {
-        recognizer.decode(stream);
-      }
-
-      final finalText = recognizer.getResult(stream).text.trim();
+      _finalResultCompleter = Completer<String>();
+      _workerSendPort!.send(const {'type': 'finish_stream'});
+      final finalText = await _finalResultCompleter!.future;
       final text = finalText.isNotEmpty ? finalText : _latestPartialText;
 
       _isRecording = false;
       await _audioSubscription?.cancel();
       _audioSubscription = null;
       _audioDoneCompleter = null;
-      _resetLiveStream();
+      _latestPartialText = '';
 
       if (text.isEmpty) {
         return const SttResult.failure('No speech detected');
@@ -286,7 +342,7 @@ class SenseVoiceService {
       await _audioSubscription?.cancel();
       _audioSubscription = null;
       _audioDoneCompleter = null;
-      _resetLiveStream();
+      _latestPartialText = '';
       return SttResult.failure(e.toString());
     }
   }
@@ -302,21 +358,138 @@ class SenseVoiceService {
     await _audioSubscription?.cancel();
     _audioSubscription = null;
     _audioDoneCompleter = null;
-    _resetLiveStream();
-  }
-
-  void _resetLiveStream() {
-    _onlineStream?.free();
-    _onlineStream = null;
     _latestPartialText = '';
+    _workerSendPort?.send(const {'type': 'cancel_stream'});
   }
 
   Future<void> dispose() async {
     await cancel();
     await _partialResultsController.close();
     _recorder.dispose();
-    _recognizer?.free();
-    _recognizer = null;
+    _workerSendPort?.send(const {'type': 'dispose'});
+    _workerSendPort = null;
+    _workerReadyCompleter = null;
+    _workerReceivePort?.close();
+    _workerReceivePort = null;
+    _workerIsolate?.kill(priority: Isolate.immediate);
+    _workerIsolate = null;
     _isModelReady = false;
   }
+}
+
+void _sttWorkerMain(_WorkerInitMessage message) {
+  sherpa.initBindings();
+
+  sherpa.OnlineRecognizer? recognizer;
+  sherpa.OnlineStream? stream;
+  String latestPartialText = '';
+
+  final commandPort = ReceivePort();
+  message.replyPort.send(commandPort.sendPort);
+
+  commandPort.listen((dynamic rawMessage) {
+    if (rawMessage is! Map) {
+      return;
+    }
+
+    final type = rawMessage['type'];
+
+    try {
+      switch (type) {
+        case 'init':
+          recognizer?.free();
+          recognizer = sherpa.OnlineRecognizer(
+            sherpa.OnlineRecognizerConfig(
+              model: sherpa.OnlineModelConfig(
+                transducer: sherpa.OnlineTransducerModelConfig(
+                  encoder: message.encoderPath,
+                  decoder: message.decoderPath,
+                  joiner: message.joinerPath,
+                ),
+                tokens: message.tokensPath,
+                numThreads: 2,
+                debug: false,
+                modelType: 'zipformer2',
+              ),
+              decodingMethod: 'greedy_search',
+              enableEndpoint: false,
+            ),
+          );
+          message.replyPort.send(const {'type': 'init_ok'});
+          break;
+        case 'start_stream':
+          stream?.free();
+          stream = recognizer?.createStream();
+          latestPartialText = '';
+          break;
+        case 'audio_chunk':
+          final recognizerRef = recognizer;
+          final streamRef = stream;
+          if (recognizerRef == null || streamRef == null) {
+            break;
+          }
+
+          final audio = rawMessage['audio'] as TransferableTypedData;
+          final bytes = audio.materialize().asUint8List();
+          if (bytes.isEmpty) {
+            break;
+          }
+
+          final sampleCount = bytes.length ~/ 2;
+          final samples = Float32List(sampleCount);
+          final byteData = ByteData.sublistView(bytes);
+          for (var i = 0; i < sampleCount; i++) {
+            samples[i] = byteData.getInt16(i * 2, Endian.little) / 32768.0;
+          }
+
+          streamRef.acceptWaveform(samples: samples, sampleRate: 16000);
+          while (recognizerRef.isReady(streamRef)) {
+            recognizerRef.decode(streamRef);
+          }
+
+          final partial = recognizerRef.getResult(streamRef).text.trim();
+          if (partial != latestPartialText) {
+            latestPartialText = partial;
+            message.replyPort.send({'type': 'partial', 'text': partial});
+          }
+          break;
+        case 'finish_stream':
+          final recognizerRef = recognizer;
+          final streamRef = stream;
+          if (recognizerRef == null || streamRef == null) {
+            message.replyPort.send(const {'type': 'final', 'text': ''});
+            break;
+          }
+
+          streamRef.inputFinished();
+          while (recognizerRef.isReady(streamRef)) {
+            recognizerRef.decode(streamRef);
+          }
+
+          final finalText = recognizerRef.getResult(streamRef).text.trim();
+          streamRef.free();
+          stream = null;
+          latestPartialText = '';
+          message.replyPort.send({'type': 'final', 'text': finalText});
+          break;
+        case 'cancel_stream':
+          stream?.free();
+          stream = null;
+          latestPartialText = '';
+          break;
+        case 'dispose':
+          stream?.free();
+          recognizer?.free();
+          commandPort.close();
+          break;
+      }
+    } catch (error) {
+      final errorText = error.toString();
+      if (type == 'init') {
+        message.replyPort.send({'type': 'init_error', 'error': errorText});
+      } else {
+        message.replyPort.send({'type': 'stream_error', 'error': errorText});
+      }
+    }
+  });
 }

@@ -6,6 +6,7 @@ import '../models/daily_phrase.dart';
 import '../services/tts_service.dart';
 import '../services/sense_voice_service.dart';
 import '../services/storage_service.dart';
+import '../config/game_config.dart';
 import '../utils/chinese_convert.dart';
 import '../widgets/clay_button.dart';
 import '../widgets/clay_card.dart';
@@ -43,6 +44,8 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
   // ── Score tracking
   final Map<int, double> _bestScores = {};
   final Map<int, int> _attemptCounts = {};
+  int _sessionXp = 0;
+  int _lastXpEarned = 0;
 
   List<DailyPhrase> get _phrases => widget.category.phrases;
   DailyPhrase get _current => _phrases[_currentIndex];
@@ -117,38 +120,115 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
   void _showSummaryDialog() {
     final practiced = _bestScores.length;
     final total = _phrases.length;
-    double avgScore = 0;
-    if (practiced > 0) {
-      avgScore = _bestScores.values.reduce((a, b) => a + b) / practiced;
+
+    // Stars summary
+    int totalStars = 0;
+    for (final score in _bestScores.values) {
+      totalStars += GameConfig.starsForScore(score);
     }
-    final emoji = avgScore >= 80
+    final maxStars = total * 3;
+
+    // Level info
+    final totalXp = StorageService.getTotalXp();
+    final level = GameConfig.levelForXp(totalXp);
+    final nextLvl = GameConfig.nextLevel(totalXp);
+    final progress = GameConfig.levelProgress(totalXp);
+
+    final emoji = totalStars >= practiced * 2
         ? '🎉'
-        : avgScore >= 60
+        : totalStars >= practiced
             ? '👍'
-            : avgScore >= 30
-                ? '💪'
-                : '📚';
+            : '💪';
 
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('$emoji 練習完成！'),
+        title: Text('$emoji 練習完成！', textAlign: TextAlign.center),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _SummaryRow(label: '總詞語數', value: '$total'),
-            _SummaryRow(label: '已練習', value: '$practiced'),
-            _SummaryRow(
-              label: '平均最高分',
-              value: practiced > 0 ? '${avgScore.round()} 分' : '—',
+            // Session XP
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Text(
+                '+$_sessionXp XP',
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                ),
+              ),
             ),
             const SizedBox(height: 12),
-            // Per-phrase breakdown
+            // Level progress
+            Row(
+              children: [
+                Text(level.emoji, style: const TextStyle(fontSize: 28)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Lv.${level.level} ${level.titleZh}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textDark,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          minHeight: 6,
+                          backgroundColor: AppColors.cardBg,
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                              AppColors.primary),
+                        ),
+                      ),
+                      if (nextLvl != null)
+                        Text(
+                          '$totalXp / ${nextLvl.xpRequired} XP',
+                          style: const TextStyle(
+                              fontSize: 11, color: AppColors.textLight),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Stars summary
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('⭐', style: TextStyle(fontSize: 20)),
+                const SizedBox(width: 4),
+                Text(
+                  '$totalStars / $maxStars',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textDark,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            const Divider(),
+            // Per-phrase breakdown with stars
             ...List.generate(_phrases.length, (i) {
               final best = _bestScores[i];
-              final att = _attemptCounts[i] ?? 0;
+              final stars =
+                  best != null ? GameConfig.starsForScore(best) : 0;
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 2),
                 child: Row(
@@ -159,27 +239,15 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
                         style: const TextStyle(fontSize: 14),
                       ),
                     ),
-                    if (best != null)
-                      Text(
-                        '${best.round()} 分 ($att 次)',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: best >= 80
-                              ? AppColors.success
-                              : best >= 60
-                                  ? AppColors.primary
-                                  : AppColors.star,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      )
-                    else
-                      const Text(
-                        '未練習',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppColors.textLight,
-                        ),
+                    Text(
+                      best != null
+                          ? GameConfig.starDisplay(stars)
+                          : '☆☆☆',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: best != null ? null : AppColors.textLight,
                       ),
+                    ),
                   ],
                 ),
               );
@@ -310,12 +378,17 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
 
   void _onRecognitionComplete(String recognized, double confidence) {
     final score = _calculateScore(recognized, _current.chinese, confidence);
+    final isFirstAttempt = (_attemptCounts[_currentIndex] ?? 0) == 0;
+    final xp = GameConfig.xpForAttempt(score, isFirstAttempt: isFirstAttempt);
+
     setState(() {
       _isListening = false;
       _isTranscribing = false;
       _recognizedText = recognized;
       _score = score;
       _hasAttempted = true;
+      _lastXpEarned = xp;
+      _sessionXp += xp;
 
       // Update local best score
       final prev = _bestScores[_currentIndex];
@@ -333,6 +406,8 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
       phraseIndex: _currentIndex,
       score: score,
     );
+    StorageService.addXp(xp);
+    StorageService.updateStreak();
   }
 
   /// Scoring algorithm inspired by voice3's ScoringEngine:
@@ -583,25 +658,17 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.emoji_events_rounded,
-                  size: 16,
-                  color: bestScore >= 80
-                      ? AppColors.success
-                      : bestScore >= 60
-                          ? AppColors.primary
-                          : AppColors.star,
-                ),
-                const SizedBox(width: 4),
                 Text(
-                  '最高 ${bestScore.round()} 分 · 練習 $attempts 次',
-                  style: TextStyle(
+                  GameConfig.starDisplay(
+                      GameConfig.starsForScore(bestScore)),
+                  style: const TextStyle(fontSize: 18),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '練習 $attempts 次',
+                  style: const TextStyle(
                     fontSize: 12,
-                    color: bestScore >= 80
-                        ? AppColors.success
-                        : bestScore >= 60
-                            ? AppColors.primary
-                            : AppColors.star,
+                    color: AppColors.textMedium,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -722,6 +789,7 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
               score: _score ?? 0,
               recognizedText: _recognizedText,
               expectedText: _current.chinese,
+              xpEarned: _lastXpEarned,
             ),
           ],
         ],
@@ -911,22 +979,49 @@ class _PulsingDotState extends State<_PulsingDot>
   }
 }
 
-// ── Score display widget
-class _ScoreDisplay extends StatelessWidget {
+// ── Score display widget with animated stars
+class _ScoreDisplay extends StatefulWidget {
   final double score;
   final String recognizedText;
   final String expectedText;
+  final int xpEarned;
 
   const _ScoreDisplay({
     required this.score,
     required this.recognizedText,
     required this.expectedText,
+    required this.xpEarned,
   });
+
+  @override
+  State<_ScoreDisplay> createState() => _ScoreDisplayState();
+}
+
+class _ScoreDisplayState extends State<_ScoreDisplay>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..forward();
+    HapticFeedback.mediumImpact();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    final int scoreInt = score.round();
+    final stars = GameConfig.starsForScore(widget.score);
+    final int scoreInt = widget.score.round();
     final Color scoreColor;
     final String emoji;
     final String feedback;
@@ -951,73 +1046,109 @@ class _ScoreDisplay extends StatelessWidget {
 
     return Column(
       children: [
-        // Score circle
-        Container(
-          width: 80,
-          height: 80,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: scoreColor.withOpacity(0.12),
-            border: Border.all(color: scoreColor, width: 3),
+        // Animated stars
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(3, (i) {
+            final filled = i < stars;
+            final delay = i * 0.18;
+            final end = (delay + 0.35).clamp(0.0, 1.0);
+            return ScaleTransition(
+              scale: CurvedAnimation(
+                parent: _controller,
+                curve: Interval(delay, end, curve: Curves.elasticOut),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  filled ? '⭐' : '☆',
+                  style: TextStyle(
+                    fontSize: filled ? 44 : 38,
+                    color: filled ? null : AppColors.textLight,
+                  ),
+                ),
+              ),
+            );
+          }),
+        ),
+        const SizedBox(height: 6),
+        // Score + feedback
+        FadeTransition(
+          opacity: CurvedAnimation(
+            parent: _controller,
+            curve: const Interval(0.4, 0.7),
           ),
-          alignment: Alignment.center,
-          child: Text(
-            '$scoreInt',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: scoreColor,
-            ),
+          child: Column(
+            children: [
+              Text(
+                '$emoji $feedback',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: scoreColor,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                '$scoreInt 分',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: scoreColor,
+                ),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 8),
-        Text(
-          '$emoji $feedback',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: scoreColor,
+        // XP badge
+        SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0, 0.5),
+            end: Offset.zero,
+          ).animate(CurvedAnimation(
+            parent: _controller,
+            curve: const Interval(0.6, 0.9, curve: Curves.easeOut),
+          )),
+          child: FadeTransition(
+            opacity: CurvedAnimation(
+              parent: _controller,
+              curve: const Interval(0.6, 0.9),
+            ),
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                '+${widget.xpEarned} XP',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
           ),
         ),
-        if (recognizedText.isNotEmpty) ...[
+        if (widget.recognizedText.isNotEmpty) ...[
           const SizedBox(height: 6),
-          Text(
-            l.phraseYouSaid(recognizedText),
-            style: const TextStyle(
-              fontSize: 13,
-              color: AppColors.textMedium,
+          FadeTransition(
+            opacity: CurvedAnimation(
+              parent: _controller,
+              curve: const Interval(0.7, 1.0),
+            ),
+            child: Text(
+              l.phraseYouSaid(widget.recognizedText),
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppColors.textMedium,
+              ),
             ),
           ),
         ],
       ],
-    );
-  }
-}
-
-// ── Summary dialog row
-class _SummaryRow extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _SummaryRow({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label,
-              style: const TextStyle(
-                  fontSize: 15, color: AppColors.textMedium)),
-          Text(value,
-              style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textDark)),
-        ],
-      ),
     );
   }
 }

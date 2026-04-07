@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
 import '../config/phrase_data.dart';
+import '../config/game_config.dart';
 import '../config/routes.dart';
 import '../models/daily_phrase.dart';
+import '../services/storage_service.dart';
 import '../widgets/clay_card.dart';
 import 'package:flutter_app/l10n/app_localizations.dart';
 
@@ -43,37 +45,56 @@ class _PhraseCategoriesScreenState extends State<PhraseCategoriesScreen>
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textDark,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.history_rounded),
+            tooltip: '練習記錄',
+            onPressed: () =>
+                Navigator.pushNamed(context, AppRoutes.phraseHistory),
+          ),
+        ],
       ),
       body: FadeTransition(
         opacity: _animController,
-        child: ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: kPhraseCategories.length,
-          itemBuilder: (ctx, i) {
-            final cat = kPhraseCategories[i];
-            final delay = (i * 0.08).clamp(0.0, 0.7);
-            return SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0, 0.3),
-                end: Offset.zero,
-              ).animate(CurvedAnimation(
-                parent: _animController,
-                curve: Interval(delay, (delay + 0.4).clamp(0.0, 1.0),
-                    curve: Curves.easeOut),
-              )),
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: _CategoryTile(
-                  category: cat,
-                  onTap: () => Navigator.pushNamed(
-                    context,
-                    AppRoutes.phraseLearning,
-                    arguments: cat,
-                  ),
-                ),
+        child: Column(
+          children: [
+            _PlayerProfileCard(),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: kPhraseCategories.length,
+                itemBuilder: (ctx, i) {
+                  final cat = kPhraseCategories[i];
+                  final delay = (i * 0.08).clamp(0.0, 0.7);
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 0.3),
+                      end: Offset.zero,
+                    ).animate(CurvedAnimation(
+                      parent: _animController,
+                      curve: Interval(delay, (delay + 0.4).clamp(0.0, 1.0),
+                          curve: Curves.easeOut),
+                    )),
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _CategoryTile(
+                        category: cat,
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            AppRoutes.phraseLearning,
+                            arguments: cat,
+                          ).then((_) {
+                            if (mounted) setState(() {});
+                          });
+                        },
+                      ),
+                    ),
+                  );
+                },
               ),
-            );
-          },
+            ),
+          ],
         ),
       ),
     );
@@ -120,12 +141,25 @@ class _CategoryTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  l.phraseCategoryCount(category.phrases.length),
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.textMedium,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      l.phraseCategoryCount(category.phrases.length),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textMedium,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '⭐ ${StorageService.getCategoryStars(category.id)}/${category.phrases.length * 3}',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.star,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -133,6 +167,114 @@ class _CategoryTile extends StatelessWidget {
           const Icon(Icons.chevron_right_rounded,
               color: AppColors.textLight, size: 28),
         ],
+      ),
+    );
+  }
+}
+
+class _PlayerProfileCard extends StatelessWidget {
+  const _PlayerProfileCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final xp = StorageService.getTotalXp();
+    final level = GameConfig.levelForXp(xp);
+    final progress = GameConfig.levelProgress(xp);
+    final nextLvl = GameConfig.nextLevel(xp);
+    final streak = StorageService.getStreak();
+    final totalStars = StorageService.getTotalStars();
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: ClayCard(
+        padding: const EdgeInsets.all(14),
+        child: Row(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              alignment: Alignment.center,
+              child: Text(level.emoji, style: const TextStyle(fontSize: 30)),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Lv.${level.level} ${level.titleZh}',
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textDark,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      minHeight: 8,
+                      backgroundColor: AppColors.cardBgAlt,
+                      valueColor:
+                          const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    nextLvl != null
+                        ? '$xp / ${nextLvl.xpRequired} XP'
+                        : '$xp XP · MAX',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppColors.textLight,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Column(
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('🔥', style: TextStyle(fontSize: 18)),
+                    const SizedBox(width: 2),
+                    Text(
+                      '$streak',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textDark,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('⭐', style: TextStyle(fontSize: 18)),
+                    const SizedBox(width: 2),
+                    Text(
+                      '$totalStars',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textDark,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

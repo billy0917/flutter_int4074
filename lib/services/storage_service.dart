@@ -163,4 +163,81 @@ class StorageService {
       'averageBest': sum / catMap.length,
     };
   }
+
+  // ─── Gamification ──────────────────────────────────────────────────────────
+
+  static int getTotalXp() {
+    return _settingsBox.get('total_xp', defaultValue: 0) as int;
+  }
+
+  static Future<int> addXp(int amount) async {
+    final current = getTotalXp();
+    final updated = current + amount;
+    await _settingsBox.put('total_xp', updated);
+    return updated;
+  }
+
+  static int getStreak() {
+    return _settingsBox.get('streak', defaultValue: 0) as int;
+  }
+
+  static Future<int> updateStreak() async {
+    final lastStr = _settingsBox.get('last_practice_date') as String?;
+    final today = DateTime.now();
+    final todayStr =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+
+    if (lastStr == todayStr) return getStreak();
+
+    final yesterday = today.subtract(const Duration(days: 1));
+    final yesterdayStr =
+        '${yesterday.year}-${yesterday.month.toString().padLeft(2, '0')}-${yesterday.day.toString().padLeft(2, '0')}';
+
+    int streak = getStreak();
+    if (lastStr == yesterdayStr) {
+      streak += 1;
+    } else {
+      streak = 1;
+    }
+
+    await _settingsBox.put('streak', streak);
+    await _settingsBox.put('last_practice_date', todayStr);
+    return streak;
+  }
+
+  static int getTotalStars() {
+    final map = _getPhraseScoresMap();
+    int total = 0;
+    for (final catEntry in map.values) {
+      for (final entry in (catEntry as Map).values) {
+        final best = ((entry as Map)['best'] as num).toDouble();
+        if (best >= 80) {
+          total += 3;
+        } else if (best >= 60) {
+          total += 2;
+        } else if (best >= 30) {
+          total += 1;
+        }
+      }
+    }
+    return total;
+  }
+
+  static int getCategoryStars(String categoryId) {
+    final map = _getPhraseScoresMap();
+    final catMap = map[categoryId] as Map<String, dynamic>?;
+    if (catMap == null) return 0;
+    int total = 0;
+    for (final entry in catMap.values) {
+      final best = ((entry as Map)['best'] as num).toDouble();
+      if (best >= 80) {
+        total += 3;
+      } else if (best >= 60) {
+        total += 2;
+      } else if (best >= 30) {
+        total += 1;
+      }
+    }
+    return total;
+  }
 }
