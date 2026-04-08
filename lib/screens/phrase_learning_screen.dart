@@ -678,6 +678,21 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
             ),
             const SizedBox(height: 8),
           ],
+          // 詞彙圖片
+          Container(
+            width: 72,
+            height: 72,
+            decoration: BoxDecoration(
+              color: AppColors.cardBgAlt,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            padding: const EdgeInsets.all(8),
+            child: Image.asset(
+              _current.imagePath,
+              fit: BoxFit.contain,
+            ),
+          ),
+          const SizedBox(height: 12),
           // Pinyin
           Text(
             _current.pinyin,

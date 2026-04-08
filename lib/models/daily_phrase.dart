@@ -1,13 +1,15 @@
-/// A single phrase with Chinese text, pinyin, and English translation.
+/// A single phrase with Chinese text, pinyin, English translation, and image.
 class DailyPhrase {
   final String chinese;
   final String pinyin;
   final String english;
+  final String imagePath;
 
   const DailyPhrase({
     required this.chinese,
     required this.pinyin,
     required this.english,
+    required this.imagePath,
   });
 }
 

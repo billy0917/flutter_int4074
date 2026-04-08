@@ -40,6 +40,7 @@ flutter:
 
   assets:
     - assets/icons/
+    - assets/images/vocab/
     - assets/streaming_zh_model/encoder.int8.onnx
     - assets/streaming_zh_model/decoder.onnx
     - assets/streaming_zh_model/joiner.int8.onnx
