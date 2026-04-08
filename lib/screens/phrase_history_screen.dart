@@ -292,11 +292,14 @@ class _PhraseRow extends StatelessWidget {
           // 詞彙圖片
           Padding(
             padding: const EdgeInsets.only(right: 10),
-            child: Image.asset(
-              record.phrase.imagePath,
-              width: 32,
-              height: 32,
-              fit: BoxFit.contain,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                record.phrase.imagePath,
+                width: 36,
+                height: 36,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           // Chinese + pinyin
