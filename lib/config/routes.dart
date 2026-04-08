@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../screens/splash_screen.dart';
-import '../screens/home_screen.dart';
+import '../screens/main_shell.dart';
 import '../screens/camera_screen.dart';
 import '../screens/result_screen.dart';
 import '../screens/quiz_screen.dart';
@@ -35,7 +35,7 @@ class AppRoutes {
       case splash:
         return _fadeRoute(const SplashScreen());
       case home:
-        return _slideRoute(const HomeScreen());
+        return _slideRoute(const MainShell());
       case camera:
         return _slideRoute(const CameraScreen());
       case result:

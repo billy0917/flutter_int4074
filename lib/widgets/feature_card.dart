@@ -3,7 +3,7 @@ import '../config/theme.dart';
 import 'clay_button.dart';
 
 class FeatureCard extends StatelessWidget {
-  final String emoji;
+  final Widget icon;
   final String titleZh;
   final String titleEn;
   final Color color;
@@ -13,7 +13,7 @@ class FeatureCard extends StatelessWidget {
 
   const FeatureCard({
     super.key,
-    required this.emoji,
+    required this.icon,
     required this.titleZh,
     required this.titleEn,
     required this.color,
@@ -25,7 +25,7 @@ class FeatureCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClayButton(
-      color: comingSoon ? AppColors.cardBgAlt : color.withOpacity(0.9),
+      color: comingSoon ? AppColors.cardBgAlt : color.withValues(alpha: 0.9),
       radius: 20,
       onTap: onTap,
       padding: EdgeInsets.zero,
@@ -37,7 +37,7 @@ class FeatureCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 32)),
+            icon,
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

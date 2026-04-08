@@ -74,7 +74,7 @@ class _ClayButtonState extends State<ClayButton>
   Widget build(BuildContext context) {
     final enabled = widget.onTap != null;
     final effectiveColor =
-        enabled ? widget.color : widget.color.withOpacity(0.5);
+        enabled ? widget.color : widget.color.withValues(alpha: 0.5);
 
     return GestureDetector(
       onTapDown: _onTapDown,

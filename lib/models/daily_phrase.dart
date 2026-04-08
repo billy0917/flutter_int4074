@@ -14,14 +14,14 @@ class DailyPhrase {
 /// A category (theme pack) of daily phrases.
 class PhraseCategory {
   final String id;
-  final String emoji;
+  final String iconPath;
   final String nameZh;
   final String nameEn;
   final List<DailyPhrase> phrases;
 
   const PhraseCategory({
     required this.id,
-    required this.emoji,
+    required this.iconPath,
     required this.nameZh,
     required this.nameEn,
     required this.phrases,

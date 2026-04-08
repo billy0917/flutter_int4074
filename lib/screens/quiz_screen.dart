@@ -13,7 +13,9 @@ import '../services/storage_service.dart';
 import '../widgets/clay_button.dart';
 import '../widgets/clay_card.dart';
 import '../widgets/tone_drawing_canvas.dart';
+import '../utils/app_icons.dart';
 import '../widgets/tone_painter.dart';
+import '../widgets/loading_animation.dart';
 import '../utils/constants.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app/l10n/app_localizations.dart';
@@ -53,7 +55,7 @@ class _QuizScreenState extends State<QuizScreen>
   final GlobalKey<ToneDrawingCanvasState> _canvasKey =
       GlobalKey<ToneDrawingCanvasState>();
   List<Offset> _strokePoints = [];
-  Size _canvasSize = const Size(300, 180);
+  Size _canvasSize = Size.zero;
 
   @override
   void initState() {
@@ -281,7 +283,7 @@ class _QuizScreenState extends State<QuizScreen>
                       child: LinearProgressIndicator(
                         value: progress,
                         backgroundColor:
-                            AppColors.textLight.withOpacity(0.3),
+                            AppColors.textLight.withValues(alpha: 0.3),
                         valueColor: const AlwaysStoppedAnimation<Color>(
                             AppColors.primary),
                         minHeight: 8,
@@ -334,8 +336,8 @@ class _QuizScreenState extends State<QuizScreen>
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: (_isCorrect == true)
-                        ? AppColors.success.withOpacity(0.2)
-                        : AppColors.error.withOpacity(0.2),
+                        ? AppColors.success.withValues(alpha: 0.2)
+                        : AppColors.error.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: (_isCorrect == true)
@@ -371,14 +373,31 @@ class _QuizScreenState extends State<QuizScreen>
                   width: double.infinity,
                   onTap: _nextQuestion,
                   child: Center(
-                    child: Text(
-                      _currentIndex < total - 1 ? l.quizNext : '完成 🎉',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: _currentIndex < total - 1
+                        ? Text(
+                            l.quizNext,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text(
+                                '完成',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              AppIcons.svg(AppIcons.party, size: 20),
+                            ],
+                          ),
                   ),
                 ),
               ],
@@ -387,7 +406,7 @@ class _QuizScreenState extends State<QuizScreen>
               if (_current.type == 'draw_tone' && !_answered) ...[
                 const SizedBox(height: 12),
                 if (_loadingJudge)
-                  const Center(child: CircularProgressIndicator())
+                  Center(child: LoadingAnimation(message: l.quizSubmit))
                 else
                   ClayButton(
                     color: AppColors.primary,
@@ -485,16 +504,23 @@ class _QuizScreenState extends State<QuizScreen>
       children: [
         if (_current.ttsText != null)
           ClayButton(
-            color: AppColors.tone2.withOpacity(0.9),
+            color: AppColors.tone2.withValues(alpha: 0.9),
             onTap: () => _tts.speak(_current.ttsText!),
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              children: const [
-                Icon(Icons.volume_up_rounded, color: Colors.white),
-                SizedBox(width: 8),
-                Text('🔊  播放發音',
-                    style: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold)),
+              children: [
+                const Icon(Icons.volume_up_rounded, color: Colors.white),
+                const SizedBox(width: 8),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AppIcons.svg(AppIcons.speaker, size: 18, color: Colors.white),
+                    const SizedBox(width: 6),
+                    const Text('播放發音',
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold)),
+                  ],
+                ),
               ],
             ),
           ),
@@ -584,13 +610,13 @@ class _OptionButton extends StatelessWidget {
     Color borderColor = Colors.transparent;
 
     if (answered && isCorrect == true) {
-      bgColor = AppColors.success.withOpacity(0.2);
+      bgColor = AppColors.success.withValues(alpha: 0.2);
       borderColor = AppColors.success;
     } else if (answered && isSelected && isCorrect == false) {
-      bgColor = AppColors.error.withOpacity(0.2);
+      bgColor = AppColors.error.withValues(alpha: 0.2);
       borderColor = AppColors.error;
     } else if (!answered && isSelected) {
-      bgColor = AppColors.primary.withOpacity(0.15);
+      bgColor = AppColors.primary.withValues(alpha: 0.15);
       borderColor = AppColors.primary;
     }
 
@@ -607,7 +633,7 @@ class _OptionButton extends StatelessWidget {
           border: Border.all(color: borderColor, width: 2),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 4,
               offset: const Offset(0, 2),
             ),
@@ -619,7 +645,7 @@ class _OptionButton extends StatelessWidget {
               width: 28,
               height: 28,
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.15),
+                color: AppColors.primary.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
               child: Center(

@@ -10,6 +10,7 @@ import '../models/learning_record.dart';
 import '../services/sense_voice_service.dart';
 import '../services/storage_service.dart';
 import '../utils/constants.dart';
+import '../utils/app_icons.dart';
 import 'package:flutter_app/l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -41,18 +42,18 @@ class _HomeScreenState extends State<HomeScreen>
 
     _staggerController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 900),
+      duration: AppConstants.animSlow,
     );
 
     _slideAnimations = List.generate(
-      6,
+      4,
       (i) => Tween<Offset>(
         begin: const Offset(0, 0.35),
         end: Offset.zero,
       ).animate(
         CurvedAnimation(
           parent: _staggerController,
-          curve: Interval(i * 0.08, (i * 0.08) + 0.5, curve: Curves.easeOut),
+          curve: Interval(i * 0.10, (i * 0.10) + 0.5, curve: Curves.easeOut),
         ),
       ),
     );
@@ -96,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen>
                 0,
                 Row(
                   children: [
-                    // Level avatar
+                    // 等級頭像 (SVG)
                     Container(
                       width: 48,
                       height: 48,
@@ -117,8 +118,10 @@ class _HomeScreenState extends State<HomeScreen>
                         ],
                       ),
                       alignment: Alignment.center,
-                      child: Text(level.emoji,
-                          style: const TextStyle(fontSize: 26)),
+                      child: AppIcons.svg(
+                        AppIcons.levelIcon(level.level),
+                        size: 28,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -155,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
               ),
 
-              const SizedBox(height: 18),
+              const SizedBox(height: 16),
 
               // ── Stats row
               _slideIn(
@@ -164,24 +167,25 @@ class _HomeScreenState extends State<HomeScreen>
                   children: [
                     Expanded(
                       child: _StatChip(
-                        emoji: '🔥',
+                        icon: AppIcons.svg(AppIcons.fire, size: 22),
                         value: '$streak',
                         label: l.statsStreak(streak).replaceAll(
                             RegExp(r'[0-9]+\s*'), ''),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: _StatChip(
-                        emoji: '⭐',
+                        icon: AppIcons.svg(AppIcons.star, size: 22,
+                            color: const Color(0xFFFFD93D)),
                         value: '$totalStars',
                         label: '星星',
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: _StatChip(
-                        emoji: '📚',
+                        icon: AppIcons.svg(AppIcons.book, size: 22),
                         value: '${history.totalWords}',
                         label: '已學詞語',
                       ),
@@ -190,36 +194,29 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
               ),
 
-              const SizedBox(height: 22),
+              const SizedBox(height: 24),
 
-              // ── Hero: Camera / Snap feature
+              // ── 日常短語（全寬卡片）
               _slideIn(
                 2,
                 GestureDetector(
-                  onTap: () =>
-                      Navigator.pushNamed(context, AppRoutes.camera),
+                  onTap: () => Navigator.pushNamed(
+                      context, AppRoutes.phraseCategories),
                   child: Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(22),
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFFFF9A56),
-                          Color(0xFFFF7535),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(24),
+                      color: AppColors.cardBg,
+                      borderRadius:
+                          BorderRadius.circular(AppConstants.cardRadius),
                       boxShadow: [
                         BoxShadow(
-                          color:
-                              AppColors.primary.withValues(alpha: 0.35),
-                          offset: const Offset(0, 8),
-                          blurRadius: 20,
+                          color: Colors.black.withValues(alpha: 0.08),
+                          offset: const Offset(4, 4),
+                          blurRadius: 8,
                         ),
                         BoxShadow(
-                          color: Colors.white.withValues(alpha: 0.25),
+                          color: Colors.white.withValues(alpha: 0.75),
                           offset: const Offset(-3, -3),
                           blurRadius: 6,
                         ),
@@ -228,15 +225,14 @@ class _HomeScreenState extends State<HomeScreen>
                     child: Row(
                       children: [
                         Container(
-                          width: 56,
-                          height: 56,
+                          width: 52,
+                          height: 52,
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.25),
-                            borderRadius: BorderRadius.circular(16),
+                            color: AppColors.tone2.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(15),
                           ),
                           alignment: Alignment.center,
-                          child: const Text('📷',
-                              style: TextStyle(fontSize: 32)),
+                          child: AppIcons.svg(AppIcons.chat, size: 28),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
@@ -244,20 +240,19 @@ class _HomeScreenState extends State<HomeScreen>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                l.featureSnap,
+                                l.featurePhrases,
                                 style: const TextStyle(
-                                  fontSize: 20,
+                                  fontSize: 18,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: AppColors.textDark,
                                 ),
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                l.featureSnapSub,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color:
-                                      Colors.white.withValues(alpha: 0.85),
+                                l.featurePhrasesSub,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textMedium,
                                 ),
                               ),
                             ],
@@ -265,8 +260,8 @@ class _HomeScreenState extends State<HomeScreen>
                         ),
                         Icon(
                           Icons.arrow_forward_rounded,
-                          color: Colors.white.withValues(alpha: 0.8),
-                          size: 28,
+                          color: AppColors.textLight,
+                          size: 24,
                         ),
                       ],
                     ),
@@ -274,43 +269,11 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
               ),
 
-              const SizedBox(height: 16),
-
-              // ── Secondary features row
-              _slideIn(
-                3,
-                Row(
-                  children: [
-                    Expanded(
-                      child: _SecondaryFeatureTile(
-                        emoji: '🗣️',
-                        label: l.featurePhrases,
-                        sublabel: l.featurePhrasesSub,
-                        color: AppColors.tone2,
-                        onTap: () => Navigator.pushNamed(
-                            context, AppRoutes.phraseCategories),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _SecondaryFeatureTile(
-                        emoji: '📜',
-                        label: l.featureHistory,
-                        sublabel: l.featureHistorySub,
-                        color: AppColors.primaryLight,
-                        onTap: () => Navigator.pushNamed(
-                            context, AppRoutes.history),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
               // ── Recent learned
               if (history.recentRecords.isNotEmpty) ...[
-                const SizedBox(height: 22),
+                const SizedBox(height: 24),
                 _slideIn(
-                  4,
+                  3,
                   Text(
                     l.recentLearned,
                     style: const TextStyle(
@@ -322,7 +285,7 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
                 const SizedBox(height: 10),
                 _slideIn(
-                  4,
+                  3,
                   SizedBox(
                     height: 96,
                     child: ListView.builder(
@@ -376,11 +339,11 @@ class _ClayIconButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 44,
-        height: 44,
+        width: 48,
+        height: 48,
         decoration: BoxDecoration(
           color: AppColors.cardBg,
-          borderRadius: BorderRadius.circular(13),
+          borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.1),
@@ -401,14 +364,14 @@ class _ClayIconButton extends StatelessWidget {
   }
 }
 
-// ── Stat chip (streak, stars, words)
+// ── Stat chip (streak, stars, words) — 使用 Widget icon 取代 emoji
 class _StatChip extends StatelessWidget {
-  final String emoji;
+  final Widget icon;
   final String value;
   final String label;
 
   const _StatChip({
-    required this.emoji,
+    required this.icon,
     required this.value,
     required this.label,
   });
@@ -435,7 +398,7 @@ class _StatChip extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(emoji, style: const TextStyle(fontSize: 20)),
+          icon,
           const SizedBox(height: 4),
           Text(
             value,
@@ -454,88 +417,6 @@ class _StatChip extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
         ],
-      ),
-    );
-  }
-}
-
-// ── Secondary feature tile (phrase / history)
-class _SecondaryFeatureTile extends StatelessWidget {
-  final String emoji;
-  final String label;
-  final String sublabel;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _SecondaryFeatureTile({
-    required this.emoji,
-    required this.label,
-    required this.sublabel,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.cardBg,
-          borderRadius: BorderRadius.circular(22),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              offset: const Offset(4, 4),
-              blurRadius: 8,
-            ),
-            BoxShadow(
-              color: Colors.white.withValues(alpha: 0.75),
-              offset: const Offset(-3, -3),
-              blurRadius: 6,
-            ),
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              offset: const Offset(0, 6),
-              blurRadius: 12,
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(13),
-              ),
-              alignment: Alignment.center,
-              child: Text(emoji, style: const TextStyle(fontSize: 24)),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textDark,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              sublabel,
-              style: const TextStyle(
-                fontSize: 11,
-                color: AppColors.textMedium,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
       ),
     );
   }

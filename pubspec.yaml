@@ -25,6 +25,7 @@ dependencies:
   sherpa_onnx: ^1.10.40
   path_provider: ^2.1.2
   uuid: ^4.3.3
+  flutter_svg: ^2.0.10+1
 
 dev_dependencies:
   flutter_test:
@@ -38,6 +39,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/icons/
     - assets/streaming_zh_model/encoder.int8.onnx
     - assets/streaming_zh_model/decoder.onnx
     - assets/streaming_zh_model/joiner.int8.onnx

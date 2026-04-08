@@ -83,7 +83,7 @@ class _LoadingAnimationState extends State<LoadingAnimation>
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: _colors[i].withOpacity(0.4),
+                          color: _colors[i].withValues(alpha: 0.4),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),

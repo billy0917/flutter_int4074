@@ -1,10 +1,11 @@
 import '../models/daily_phrase.dart';
+import '../utils/app_icons.dart';
 
 /// Built-in phrase packs inspired by MandaLearn's theme system.
 const List<PhraseCategory> kPhraseCategories = [
   PhraseCategory(
     id: 'greetings',
-    emoji: '👋',
+    iconPath: AppIcons.wave,
     nameZh: '打招呼',
     nameEn: 'Greetings',
     phrases: [
@@ -20,7 +21,7 @@ const List<PhraseCategory> kPhraseCategories = [
   ),
   PhraseCategory(
     id: 'restaurant',
-    emoji: '🍔',
+    iconPath: AppIcons.burger,
     nameZh: '餐廳與美食',
     nameEn: 'Restaurant',
     phrases: [
@@ -36,7 +37,7 @@ const List<PhraseCategory> kPhraseCategories = [
   ),
   PhraseCategory(
     id: 'school',
-    emoji: '🏫',
+    iconPath: AppIcons.school,
     nameZh: '校園生活',
     nameEn: 'School Life',
     phrases: [
@@ -52,7 +53,7 @@ const List<PhraseCategory> kPhraseCategories = [
   ),
   PhraseCategory(
     id: 'shopping',
-    emoji: '🛒',
+    iconPath: AppIcons.cart,
     nameZh: '超市購物',
     nameEn: 'Shopping',
     phrases: [
@@ -68,7 +69,7 @@ const List<PhraseCategory> kPhraseCategories = [
   ),
   PhraseCategory(
     id: 'transport',
-    emoji: '🚌',
+    iconPath: AppIcons.bus,
     nameZh: '交通出行',
     nameEn: 'Transport',
     phrases: [
@@ -84,7 +85,7 @@ const List<PhraseCategory> kPhraseCategories = [
   ),
   PhraseCategory(
     id: 'hospital',
-    emoji: '🏥',
+    iconPath: AppIcons.hospital,
     nameZh: '看病就醫',
     nameEn: 'Hospital',
     phrases: [
@@ -100,7 +101,7 @@ const List<PhraseCategory> kPhraseCategories = [
   ),
   PhraseCategory(
     id: 'home_life',
-    emoji: '🏠',
+    iconPath: AppIcons.house,
     nameZh: '家庭日常',
     nameEn: 'Home Life',
     phrases: [
@@ -116,7 +117,7 @@ const List<PhraseCategory> kPhraseCategories = [
   ),
   PhraseCategory(
     id: 'weather',
-    emoji: '🌦️',
+    iconPath: AppIcons.weather,
     nameZh: '天氣與自然',
     nameEn: 'Weather',
     phrases: [

@@ -1,26 +1,28 @@
+import '../utils/app_icons.dart';
+
 class GameLevel {
   final int level;
   final String titleZh;
-  final String emoji;
+  final String iconPath;
   final int xpRequired;
 
   const GameLevel({
     required this.level,
     required this.titleZh,
-    required this.emoji,
+    required this.iconPath,
     required this.xpRequired,
   });
 }
 
 class GameConfig {
   static const List<GameLevel> levels = [
-    GameLevel(level: 1, titleZh: '小新手', emoji: '🐣', xpRequired: 0),
-    GameLevel(level: 2, titleZh: '小學生', emoji: '🐥', xpRequired: 50),
-    GameLevel(level: 3, titleZh: '小達人', emoji: '🦊', xpRequired: 150),
-    GameLevel(level: 4, titleZh: '詞語高手', emoji: '🦁', xpRequired: 350),
-    GameLevel(level: 5, titleZh: '語言大師', emoji: '🐉', xpRequired: 600),
-    GameLevel(level: 6, titleZh: '中文天才', emoji: '🌟', xpRequired: 1000),
-    GameLevel(level: 7, titleZh: '超級學霸', emoji: '👑', xpRequired: 1500),
+    GameLevel(level: 1, titleZh: '小新手', iconPath: AppIcons.chickHatching, xpRequired: 0),
+    GameLevel(level: 2, titleZh: '小學生', iconPath: AppIcons.chick, xpRequired: 50),
+    GameLevel(level: 3, titleZh: '小達人', iconPath: AppIcons.fox, xpRequired: 150),
+    GameLevel(level: 4, titleZh: '詞語高手', iconPath: AppIcons.lion, xpRequired: 350),
+    GameLevel(level: 5, titleZh: '語言大師', iconPath: AppIcons.dragon, xpRequired: 600),
+    GameLevel(level: 6, titleZh: '中文天才', iconPath: AppIcons.sparkle, xpRequired: 1000),
+    GameLevel(level: 7, titleZh: '超級學霸', iconPath: AppIcons.crown, xpRequired: 1500),
   ];
 
   static GameLevel levelForXp(int xp) {

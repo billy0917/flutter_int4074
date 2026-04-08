@@ -9,6 +9,7 @@ import '../widgets/clay_card.dart';
 import '../widgets/clay_text_field.dart';
 import '../utils/constants.dart';
 import '../utils/date_formatter.dart';
+import '../utils/app_icons.dart';
 import 'package:flutter_app/l10n/app_localizations.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -77,10 +78,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
             Expanded(
               child: records.isEmpty
                   ? Center(
-                      child: Text(
-                        l.historyEmpty,
-                        style: const TextStyle(
-                            fontSize: 16, color: AppColors.textLight),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          AppIcons.svg(AppIcons.camera, size: 56),
+                          const SizedBox(height: 16),
+                          Text(
+                            l.historyEmpty,
+                            style: const TextStyle(
+                                fontSize: 18,
+                                color: AppColors.textMedium,
+                                fontWeight: FontWeight.w600),
+                          ),
+                        ],
                       ),
                     )
                   : ListView(
@@ -179,7 +189,7 @@ class _HistoryItem extends StatelessWidget {
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
         decoration: BoxDecoration(
-          color: AppColors.error.withOpacity(0.8),
+          color: AppColors.error.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(16),
         ),
         child: const Icon(Icons.delete_rounded, color: Colors.white),
@@ -187,7 +197,7 @@ class _HistoryItem extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: ClayCard(
-          margin: const EdgeInsets.only(bottom: 10),
+          margin: const EdgeInsets.only(bottom: 8),
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
@@ -196,7 +206,7 @@ class _HistoryItem extends StatelessWidget {
                 width: 52,
                 height: 52,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.15),
+                  color: AppColors.primary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
@@ -247,7 +257,7 @@ class _HistoryItem extends StatelessWidget {
                               color: i < lastAttempt.starRating
                                   ? AppColors.star
                                   : AppColors.textLight,
-                              size: 16,
+                              size: 20,
                             ),
                           ),
                           const SizedBox(width: 6),

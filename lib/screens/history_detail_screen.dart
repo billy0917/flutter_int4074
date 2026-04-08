@@ -13,8 +13,10 @@ import '../services/storage_service.dart';
 import '../widgets/clay_card.dart';
 import '../widgets/clay_button.dart';
 import '../widgets/tone_display.dart';
+import '../utils/app_icons.dart';
 import '../widgets/star_rating.dart';
 import '../widgets/loading_animation.dart';
+import '../widgets/info_row.dart';
 import '../utils/constants.dart';
 import '../utils/date_formatter.dart';
 import 'package:flutter_app/l10n/app_localizations.dart';
@@ -157,10 +159,10 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
               if (rec.imagePath.isNotEmpty &&
                   File(rec.imagePath).existsSync())
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(AppConstants.cardRadius),
                   child: Image.file(
                     File(rec.imagePath),
-                    height: 200,
+                    height: AppConstants.imageHeight(context),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -224,11 +226,11 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
                       ),
                       const SizedBox(height: 12),
                     ],
-                    _InfoRow(
+                    InfoRow(
                         label: l.resultEnglish, value: rec.objectNameEn),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8),
                     if (rec.cantoneseReference.isNotEmpty)
-                      _InfoRow(
+                      InfoRow(
                           label: l.resultCantonese,
                           value: rec.cantoneseReference),
                     const SizedBox(height: 6),
@@ -253,7 +255,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
 
               // TTS
               ClayButton(
-                color: AppColors.tone2.withOpacity(0.9),
+                color: AppColors.tone2.withValues(alpha: 0.9),
                 width: double.infinity,
                 onTap: () => _tts.speak(rec.objectNameZh),
                 child: Row(
@@ -291,7 +293,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
                       const SizedBox(height: 12),
                       ...rec.quizAttempts.reversed.take(5).map((attempt) =>
                           Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.only(bottom: 8),
                             child: Row(
                               children: [
                                 StarRating(
@@ -314,7 +316,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
                                       attempt.attemptedAt,
                                       locale: locale),
                                   style: const TextStyle(
-                                      fontSize: 11,
+                                      fontSize: 12,
                                       color: AppColors.textLight),
                                 ),
                               ],
@@ -337,7 +339,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('📝', style: TextStyle(fontSize: 18)),
+                      AppIcons.svg(AppIcons.pencil, size: 20, color: Colors.white),
                       const SizedBox(width: 8),
                       Text(
                         l.startQuiz,
@@ -370,27 +372,3 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
   }
 }
 
-class _InfoRow extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _InfoRow({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('$label：',
-            style: const TextStyle(
-                fontSize: 13, color: AppColors.textMedium)),
-        Expanded(
-            child: Text(value,
-                style: const TextStyle(
-                    fontSize: 15,
-                    color: AppColors.textDark,
-                    fontWeight: FontWeight.w500))),
-      ],
-    );
-  }
-}
