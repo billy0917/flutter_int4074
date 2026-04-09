@@ -1,5 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Internet permission (required for http package) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <!-- Camera permission (required for image_picker camera source) -->
     <uses-permission android:name="android.permission.CAMERA" />
     <!-- Read media permissions (gallery picker) -->
