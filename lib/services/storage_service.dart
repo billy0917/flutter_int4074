@@ -10,6 +10,8 @@ class StorageService {
 
   static bool _initialized = false;
 
+  static bool get isInitialized => _initialized;
+
   static Future<void> init() async {
     if (_initialized) return;
     await Hive.initFlutter();

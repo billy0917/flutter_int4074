@@ -52,7 +52,7 @@ class ToneDrawingCanvasState extends State<ToneDrawingCanvas> {
           color: AppColors.cardBgAlt,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: AppColors.textLight.withOpacity(0.5),
+            color: AppColors.textLight.withValues(alpha: 0.5),
             width: 1.5,
             strokeAlign: BorderSide.strokeAlignInside,
           ),
@@ -76,7 +76,7 @@ class _GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = AppColors.textLight.withOpacity(0.3)
+      ..color = AppColors.textLight.withValues(alpha: 0.3)
       ..strokeWidth = 0.8;
 
     // Horizontal lines

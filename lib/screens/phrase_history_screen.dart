@@ -6,6 +6,8 @@ import '../config/routes.dart';
 import '../models/daily_phrase.dart';
 import '../services/storage_service.dart';
 import '../widgets/clay_card.dart';
+import '../utils/constants.dart';
+import '../utils/app_icons.dart';
 
 /// Shows the user's phrase practice history grouped by category, with
 /// per-phrase best score, attempt count, and last practice time.
@@ -26,7 +28,7 @@ class _PhraseHistoryScreenState extends State<PhraseHistoryScreen>
     super.initState();
     _animController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 600),
+      duration: AppConstants.animNormal,
     )..forward();
     _loadRecords();
   }
@@ -80,7 +82,7 @@ class _PhraseHistoryScreenState extends State<PhraseHistoryScreen>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('📝', style: TextStyle(fontSize: 56)),
+                  AppIcons.svg(AppIcons.pencil, size: 56),
                   const SizedBox(height: 16),
                   const Text(
                     '尚未練習任何詞語',
@@ -193,7 +195,7 @@ class _CategorySection extends StatelessWidget {
             // Header row
             Row(
               children: [
-                Text(cat.emoji, style: const TextStyle(fontSize: 28)),
+                AppIcons.svg(cat.iconPath, size: 28),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -225,13 +227,20 @@ class _CategorySection extends StatelessWidget {
                     color: AppColors.star.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Text(
-                    '⭐ $catStars/$maxStars',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.star,
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      AppIcons.svg(AppIcons.star, size: 14, color: AppColors.star),
+                      const SizedBox(width: 4),
+                      Text(
+                        '$catStars/$maxStars',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.star,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -280,6 +289,19 @@ class _PhraseRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
+          // 詞彙圖片
+          Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                record.phrase.imagePath,
+                width: 36,
+                height: 36,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
           // Chinese + pinyin
           Expanded(
             child: Column(
@@ -313,10 +335,7 @@ class _PhraseRow extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           // Stars
-          Text(
-            GameConfig.starDisplay(stars),
-            style: const TextStyle(fontSize: 16),
-          ),
+          AppIcons.starRow(stars, size: 18),
         ],
       ),
     );

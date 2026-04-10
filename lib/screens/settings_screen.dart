@@ -8,6 +8,7 @@ import '../services/tts_service.dart';
 import '../widgets/clay_card.dart';
 import '../widgets/clay_button.dart';
 import '../utils/constants.dart';
+import '../utils/app_icons.dart';
 import 'package:flutter_app/l10n/app_localizations.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -85,7 +86,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   Row(
                     children: [
-                      const Text('🌐', style: TextStyle(fontSize: 20)),
+                      AppIcons.svg(AppIcons.globe, size: 22),
                       const SizedBox(width: 8),
                       Text(
                         l.settingsLanguage,
@@ -158,7 +159,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   Row(
                     children: [
-                      const Text('🔊', style: TextStyle(fontSize: 20)),
+                      AppIcons.svg(AppIcons.speaker, size: 22),
                       const SizedBox(width: 8),
                       Text(
                         l.settingsTtsSpeed,
@@ -185,7 +186,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     max: 1.0,
                     divisions: 7,
                     activeColor: AppColors.primary,
-                    inactiveColor: AppColors.textLight.withOpacity(0.4),
+                    inactiveColor: AppColors.textLight.withValues(alpha: 0.4),
                     onChanged: (v) async {
                       setState(() => _ttsSpeed = v);
                       await StorageService.setTtsSpeed(v);
@@ -212,7 +213,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   Row(
                     children: [
-                      const Text('🗑️', style: TextStyle(fontSize: 20)),
+                      AppIcons.svg(AppIcons.trash, size: 22),
                       const SizedBox(width: 8),
                       Text(
                         l.settingsClearHistory,
@@ -226,7 +227,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   const SizedBox(height: 12),
                   ClayButton(
-                    color: AppColors.error.withOpacity(0.9),
+                    color: AppColors.error.withValues(alpha: 0.9),
                     width: double.infinity,
                     onTap: () => _clearHistory(context, l),
                     child: Center(
@@ -253,7 +254,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   Row(
                     children: [
-                      const Text('ℹ️', style: TextStyle(fontSize: 20)),
+                      AppIcons.svg(AppIcons.info, size: 22),
                       const SizedBox(width: 8),
                       Text(
                         l.settingsAbout,

@@ -5,8 +5,14 @@ class LocaleProvider extends ChangeNotifier {
   Locale _locale = const Locale('zh');
 
   LocaleProvider() {
-    final saved = StorageService.getLocale();
-    _locale = Locale(saved);
+    if (StorageService.isInitialized) {
+      try {
+        final saved = StorageService.getLocale();
+        _locale = Locale(saved);
+      } catch (_) {
+        // Fallback to default locale
+      }
+    }
   }
 
   Locale get locale => _locale;

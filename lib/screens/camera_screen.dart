@@ -11,6 +11,7 @@ import '../services/image_service.dart';
 import '../widgets/clay_button.dart';
 import '../widgets/loading_animation.dart';
 import '../utils/constants.dart';
+import '../utils/app_icons.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_app/l10n/app_localizations.dart';
 
@@ -132,14 +133,14 @@ class _CameraScreenState extends State<CameraScreen> {
               // Image preview
               Expanded(
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(AppConstants.cardRadius),
                   child: Container(
                     decoration: BoxDecoration(
                       color: AppColors.cardBg,
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(AppConstants.cardRadius),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 16,
                           offset: const Offset(0, 6),
                         ),
@@ -150,8 +151,7 @@ class _CameraScreenState extends State<CameraScreen> {
                         : Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text('📸',
-                                  style: TextStyle(fontSize: 64)),
+                              AppIcons.svg(AppIcons.camera, size: 64),
                               const SizedBox(height: 16),
                               Text(
                                 l.cameraHint,
@@ -211,7 +211,7 @@ class _CameraScreenState extends State<CameraScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text('🚀', style: TextStyle(fontSize: 20)),
+                        AppIcons.svg(AppIcons.rocket, size: 22, color: Colors.white),
                         const SizedBox(width: 10),
                         Text(
                           l.cameraRecognize,

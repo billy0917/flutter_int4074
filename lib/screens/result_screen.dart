@@ -13,6 +13,8 @@ import '../widgets/clay_card.dart';
 import '../widgets/clay_button.dart';
 import '../widgets/tone_display.dart';
 import '../widgets/loading_animation.dart';
+import '../utils/app_icons.dart';
+import '../widgets/info_row.dart';
 import '../utils/constants.dart';
 import 'package:flutter_app/l10n/app_localizations.dart';
 
@@ -108,10 +110,10 @@ class _ResultScreenState extends State<ResultScreen> {
               // Image
               if (r.imagePath != null && r.imagePath!.isNotEmpty)
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(AppConstants.cardRadius),
                   child: Image.file(
                     File(r.imagePath!),
-                    height: 200,
+                    height: AppConstants.imageHeight(context),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -189,12 +191,12 @@ class _ResultScreenState extends State<ResultScreen> {
                     ],
 
                     // English
-                    _InfoRow(label: l.resultEnglish, value: r.objectNameEn),
+                    InfoRow(label: l.resultEnglish, value: r.objectNameEn),
                     const SizedBox(height: 8),
 
                     // Cantonese
                     if (r.cantoneseReference.isNotEmpty)
-                      _InfoRow(
+                      InfoRow(
                           label: l.resultCantonese,
                           value: r.cantoneseReference),
                     const SizedBox(height: 8),
@@ -231,7 +233,7 @@ class _ResultScreenState extends State<ResultScreen> {
 
               // TTS button
               ClayButton(
-                color: AppColors.tone2.withOpacity(0.9),
+                color: AppColors.tone2.withValues(alpha: 0.9),
                 width: double.infinity,
                 onTap: () => _tts.speak(r.objectNameZh),
                 child: Row(
@@ -264,7 +266,7 @@ class _ResultScreenState extends State<ResultScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('📝', style: TextStyle(fontSize: 18)),
+                      AppIcons.svg(AppIcons.pencil, size: 20, color: Colors.white),
                       const SizedBox(width: 8),
                       Text(
                         l.resultStartQuiz,
@@ -303,7 +305,7 @@ class _ResultScreenState extends State<ResultScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('📷', style: TextStyle(fontSize: 18)),
+                    AppIcons.svg(AppIcons.camera, size: 20),
                     const SizedBox(width: 8),
                     Text(
                       l.resultRetake,
@@ -325,31 +327,3 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 }
 
-class _InfoRow extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _InfoRow({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '$label：',
-          style: const TextStyle(fontSize: 13, color: AppColors.textMedium),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: const TextStyle(
-                fontSize: 15,
-                color: AppColors.textDark,
-                fontWeight: FontWeight.w500),
-          ),
-        ),
-      ],
-    );
-  }
-}

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
 import '../config/routes.dart';
+import '../utils/app_icons.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -56,8 +57,8 @@ class _SplashScreenState extends State<SplashScreen>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  width: 120,
-                  height: 120,
+                  width: MediaQuery.of(context).size.width * 0.3,
+                  height: MediaQuery.of(context).size.width * 0.3,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [AppColors.primaryLight, AppColors.primary],
@@ -67,14 +68,14 @@ class _SplashScreenState extends State<SplashScreen>
                     borderRadius: BorderRadius.circular(32),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primary.withOpacity(0.4),
+                        color: AppColors.primary.withValues(alpha: 0.4),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
                     ],
                   ),
-                  child: const Center(
-                    child: Text('🎵', style: TextStyle(fontSize: 56)),
+                  child: Center(
+                    child: AppIcons.svg(AppIcons.music, size: 56),
                   ),
                 ),
                 const SizedBox(height: 24),

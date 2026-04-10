@@ -58,7 +58,7 @@ class QuizResultScreen extends StatelessWidget {
               const SizedBox(height: 24),
 
               // Stars
-              Center(child: StarRating(stars: _stars, size: 56)),
+              Center(child: StarRating(stars: _stars, size: AppConstants.starSize(context).clamp(40, 56))),
 
               const SizedBox(height: 24),
 
@@ -93,7 +93,7 @@ class QuizResultScreen extends StatelessWidget {
                       child: LinearProgressIndicator(
                         value: total > 0 ? correct / total : 0,
                         backgroundColor:
-                            AppColors.textLight.withOpacity(0.3),
+                            AppColors.textLight.withValues(alpha: 0.3),
                         valueColor: AlwaysStoppedAnimation<Color>(
                           _stars == 3
                               ? AppColors.success

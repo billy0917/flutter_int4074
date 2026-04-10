@@ -40,7 +40,7 @@ BoxDecoration clayDecoration({
     boxShadow: isPressed
         ? [
             BoxShadow(
-              color: Colors.black.withOpacity(0.15),
+              color: Colors.black.withValues(alpha: 0.15),
               offset: const Offset(2, 2),
               blurRadius: 4,
               spreadRadius: -1,
@@ -48,17 +48,17 @@ BoxDecoration clayDecoration({
           ]
         : [
             BoxShadow(
-              color: Colors.black.withOpacity(0.12),
+              color: Colors.black.withValues(alpha: 0.12),
               offset: const Offset(4, 4),
               blurRadius: 8,
             ),
             BoxShadow(
-              color: Colors.white.withOpacity(0.8),
+              color: Colors.white.withValues(alpha: 0.8),
               offset: const Offset(-3, -3),
               blurRadius: 6,
             ),
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
+              color: Colors.black.withValues(alpha: 0.06),
               offset: const Offset(0, 8),
               blurRadius: 16,
             ),

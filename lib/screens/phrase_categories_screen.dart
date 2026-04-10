@@ -6,6 +6,8 @@ import '../config/routes.dart';
 import '../models/daily_phrase.dart';
 import '../services/storage_service.dart';
 import '../widgets/clay_card.dart';
+import '../utils/constants.dart';
+import '../utils/app_icons.dart';
 import 'package:flutter_app/l10n/app_localizations.dart';
 
 class PhraseCategoriesScreen extends StatefulWidget {
@@ -24,7 +26,7 @@ class _PhraseCategoriesScreenState extends State<PhraseCategoriesScreen>
     super.initState();
     _animController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 600),
+      duration: AppConstants.animNormal,
     )..forward();
   }
 
@@ -121,11 +123,11 @@ class _CategoryTile extends StatelessWidget {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.15),
+              color: AppColors.primary.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(16),
             ),
             alignment: Alignment.center,
-            child: Text(category.emoji, style: const TextStyle(fontSize: 28)),
+            child: AppIcons.svg(category.iconPath, size: 28),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -151,13 +153,20 @@ class _CategoryTile extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      '⭐ ${StorageService.getCategoryStars(category.id)}/${category.phrases.length * 3}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.star,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        AppIcons.svg(AppIcons.star, size: 14, color: AppColors.star),
+                        const SizedBox(width: 2),
+                        Text(
+                          '${StorageService.getCategoryStars(category.id)}/${category.phrases.length * 3}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.star,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -198,7 +207,7 @@ class _PlayerProfileCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
               ),
               alignment: Alignment.center,
-              child: Text(level.emoji, style: const TextStyle(fontSize: 30)),
+              child: AppIcons.svg(AppIcons.levelIcon(level.level), size: 30),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -243,7 +252,7 @@ class _PlayerProfileCard extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('🔥', style: TextStyle(fontSize: 18)),
+                    AppIcons.svg(AppIcons.fire, size: 20),
                     const SizedBox(width: 2),
                     Text(
                       '$streak',
@@ -259,7 +268,7 @@ class _PlayerProfileCard extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('⭐', style: TextStyle(fontSize: 18)),
+                    AppIcons.svg(AppIcons.star, size: 20, color: const Color(0xFFFFD93D)),
                     const SizedBox(width: 2),
                     Text(
                       '$totalStars',

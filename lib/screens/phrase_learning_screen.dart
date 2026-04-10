@@ -7,6 +7,7 @@ import '../services/tts_service.dart';
 import '../services/sense_voice_service.dart';
 import '../services/storage_service.dart';
 import '../config/game_config.dart';
+import '../utils/app_icons.dart';
 import '../utils/chinese_convert.dart';
 import '../widgets/clay_button.dart';
 import '../widgets/clay_card.dart';
@@ -134,18 +135,25 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
     final nextLvl = GameConfig.nextLevel(totalXp);
     final progress = GameConfig.levelProgress(totalXp);
 
-    final emoji = totalStars >= practiced * 2
-        ? '🎉'
+    final feedbackPath = totalStars >= practiced * 2
+        ? AppIcons.party
         : totalStars >= practiced
-            ? '👍'
-            : '💪';
+            ? AppIcons.thumbsup
+            : AppIcons.flex;
 
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('$emoji 練習完成！', textAlign: TextAlign.center),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AppIcons.svg(feedbackPath, size: 28),
+            const SizedBox(width: 8),
+            const Text('練習完成！'),
+          ],
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -169,7 +177,7 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
             // Level progress
             Row(
               children: [
-                Text(level.emoji, style: const TextStyle(fontSize: 28)),
+                AppIcons.svg(AppIcons.levelIcon(level.level), size: 28),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Column(
@@ -210,7 +218,7 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text('⭐', style: TextStyle(fontSize: 20)),
+                AppIcons.svg(AppIcons.star, size: 22, color: const Color(0xFFFFD93D)),
                 const SizedBox(width: 4),
                 Text(
                   '$totalStars / $maxStars',
@@ -239,15 +247,9 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
                         style: const TextStyle(fontSize: 14),
                       ),
                     ),
-                    Text(
-                      best != null
-                          ? GameConfig.starDisplay(stars)
-                          : '☆☆☆',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: best != null ? null : AppColors.textLight,
-                      ),
-                    ),
+                    best != null
+                          ? AppIcons.starRow(stars, size: 16)
+                          : AppIcons.starRow(0, size: 16),
                   ],
                 ),
               );
@@ -473,7 +475,7 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('${widget.category.emoji} $catName'),
+        title: Text(catName),
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.textDark,
         elevation: 0,
@@ -676,6 +678,17 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
             ),
             const SizedBox(height: 8),
           ],
+          // 詞彙圖片
+          ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Image.asset(
+              _current.imagePath,
+              width: 100,
+              height: 100,
+              fit: BoxFit.cover,
+            ),
+          ),
+          const SizedBox(height: 12),
           // Pinyin
           Text(
             _current.pinyin,
@@ -737,7 +750,10 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
             const SizedBox(
               width: 24,
               height: 24,
-              child: CircularProgressIndicator(strokeWidth: 2.5),
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                color: AppColors.primary,
+              ),
             ),
             const SizedBox(height: 8),
             const Text(
@@ -849,11 +865,11 @@ class _CircleAction extends StatelessWidget {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
+              color: color.withValues(alpha: 0.15),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: color.withOpacity(0.2),
+                  color: color.withValues(alpha: 0.2),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -898,18 +914,18 @@ class _MicButton extends StatelessWidget {
             width: 72,
             height: 72,
             decoration: BoxDecoration(
-              color: bgColor.withOpacity(isListening ? 0.9 : 0.85),
+              color: bgColor.withValues(alpha: isListening ? 0.9 : 0.85),
               shape: BoxShape.circle,
               boxShadow: [
                 if (isListening)
                   BoxShadow(
-                    color: AppColors.error.withOpacity(0.4),
+                    color: AppColors.error.withValues(alpha: 0.4),
                     blurRadius: 20,
                     spreadRadius: 4,
                   )
                 else
                   BoxShadow(
-                    color: bgColor.withOpacity(0.3),
+                    color: bgColor.withValues(alpha: 0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -1023,24 +1039,24 @@ class _ScoreDisplayState extends State<_ScoreDisplay>
     final stars = GameConfig.starsForScore(widget.score);
     final int scoreInt = widget.score.round();
     final Color scoreColor;
-    final String emoji;
+    final String iconPath;
     final String feedback;
 
     if (scoreInt >= 80) {
       scoreColor = AppColors.success;
-      emoji = '🎉';
+      iconPath = AppIcons.party;
       feedback = l.phraseScoreExcellent;
     } else if (scoreInt >= 60) {
       scoreColor = AppColors.primary;
-      emoji = '👍';
+      iconPath = AppIcons.thumbsup;
       feedback = l.phraseScoreGood;
     } else if (scoreInt >= 30) {
       scoreColor = AppColors.star;
-      emoji = '💪';
+      iconPath = AppIcons.flex;
       feedback = l.phraseScoreTryAgain;
     } else {
       scoreColor = AppColors.error;
-      emoji = '🔄';
+      iconPath = AppIcons.refresh;
       feedback = l.phraseScoreRetry;
     }
 
@@ -1060,12 +1076,10 @@ class _ScoreDisplayState extends State<_ScoreDisplay>
               ),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Text(
-                  filled ? '⭐' : '☆',
-                  style: TextStyle(
-                    fontSize: filled ? 44 : 38,
-                    color: filled ? null : AppColors.textLight,
-                  ),
+                child: AppIcons.svg(
+                  filled ? AppIcons.star : AppIcons.starOutline,
+                  size: filled ? 44 : 38,
+                  color: filled ? const Color(0xFFFFD93D) : AppColors.textLight,
                 ),
               ),
             );
@@ -1080,13 +1094,21 @@ class _ScoreDisplayState extends State<_ScoreDisplay>
           ),
           child: Column(
             children: [
-              Text(
-                '$emoji $feedback',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: scoreColor,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AppIcons.svg(iconPath, size: 20),
+                  const SizedBox(width: 4),
+                  Text(
+                    feedback,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: scoreColor,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 2),
               Text(
