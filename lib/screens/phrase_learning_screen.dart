@@ -47,6 +47,7 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
   final Map<int, int> _attemptCounts = {};
   int _sessionXp = 0;
   int _lastXpEarned = 0;
+  bool _imagesPrecached = false;
 
   List<DailyPhrase> get _phrases => widget.category.phrases;
   DailyPhrase get _current => _phrases[_currentIndex];
@@ -80,6 +81,17 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
     Future.delayed(const Duration(milliseconds: 600), () {
       if (mounted) _tts.speak(_current.chinese);
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_imagesPrecached) {
+      _imagesPrecached = true;
+      for (final phrase in _phrases) {
+        precacheImage(AssetImage(phrase.imagePath), context);
+      }
+    }
   }
 
   @override
@@ -686,6 +698,7 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
               width: 100,
               height: 100,
               fit: BoxFit.cover,
+              gaplessPlayback: true,
             ),
           ),
           const SizedBox(height: 12),
