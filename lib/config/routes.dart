@@ -11,6 +11,7 @@ import '../screens/settings_screen.dart';
 import '../screens/phrase_categories_screen.dart';
 import '../screens/phrase_learning_screen.dart';
 import '../screens/phrase_history_screen.dart';
+import '../config/api_config.dart';
 import '../models/recognition_result.dart';
 import '../models/learning_record.dart';
 import '../models/quiz_question.dart';
@@ -39,14 +40,18 @@ class AppRoutes {
       case camera:
         return _slideRoute(const CameraScreen());
       case result:
-        final result = settings_.arguments as RecognitionResult;
-        return _slideRoute(ResultScreen(result: result));
+        final resultArgs = settings_.arguments as Map<String, dynamic>;
+        return _slideRoute(ResultScreen(
+          result: resultArgs['result'] as RecognitionResult,
+          preset: resultArgs['preset'] as ModelPreset? ?? ModelPreset.fast,
+        ));
       case quiz:
         final args = settings_.arguments as Map<String, dynamic>;
         return _slideRoute(QuizScreen(
           recognitionResult: args['result'] as RecognitionResult,
           questions: args['questions'] as List<QuizQuestion>,
           recordId: args['recordId'] as String,
+          preset: args['preset'] as ModelPreset? ?? ModelPreset.fast,
         ));
       case quizResult:
         final args = settings_.arguments as Map<String, dynamic>;

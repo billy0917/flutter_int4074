@@ -9,6 +9,7 @@ import '../providers/locale_provider.dart';
 import '../services/api_service.dart';
 import '../services/tts_service.dart';
 import '../services/storage_service.dart';
+import '../config/api_config.dart';
 import '../widgets/clay_card.dart';
 import '../widgets/clay_button.dart';
 import '../widgets/tone_display.dart';
@@ -20,8 +21,9 @@ import 'package:flutter_app/l10n/app_localizations.dart';
 
 class ResultScreen extends StatefulWidget {
   final RecognitionResult result;
+  final ModelPreset preset;
 
-  const ResultScreen({super.key, required this.result});
+  const ResultScreen({super.key, required this.result, this.preset = ModelPreset.fast});
 
   @override
   State<ResultScreen> createState() => _ResultScreenState();
@@ -53,7 +55,7 @@ class _ResultScreenState extends State<ResultScreen> {
       _quizError = null;
     });
 
-    final questions = await ApiService.generateQuiz(widget.result);
+    final questions = await ApiService.generateQuiz(widget.result, preset: widget.preset);
     if (!mounted) return;
 
     if (questions == null || questions.isEmpty) {
@@ -83,6 +85,7 @@ class _ResultScreenState extends State<ResultScreen> {
         'result': widget.result,
         'questions': questions,
         'recordId': recordId,
+        'preset': widget.preset,
       },
     );
   }

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../config/theme.dart';
@@ -209,14 +210,25 @@ class _HistoryItem extends StatelessWidget {
                   color: AppColors.primary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Center(
-                  child: Text(
-                    record.objectNameZh.isNotEmpty
-                        ? record.objectNameZh.substring(0, 1)
-                        : '?',
-                    style: const TextStyle(
-                        fontSize: 26, color: AppColors.textDark),
-                  ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: record.imagePath.isNotEmpty &&
+                          File(record.imagePath).existsSync()
+                      ? Image.file(
+                          File(record.imagePath),
+                          width: 52,
+                          height: 52,
+                          fit: BoxFit.cover,
+                        )
+                      : Center(
+                          child: Text(
+                            record.objectNameZh.isNotEmpty
+                                ? record.objectNameZh.substring(0, 1)
+                                : '?',
+                            style: const TextStyle(
+                                fontSize: 26, color: AppColors.textDark),
+                          ),
+                        ),
                 ),
               ),
               const SizedBox(width: 12),

@@ -97,6 +97,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cameraAlbum => 'Album';
 
   @override
+  String get cameraModelFast => 'Fast';
+
+  @override
+  String get cameraModelStable => 'Stable (slower)';
+
+  @override
+  String get modelSwitchHint =>
+      'If the current model is unavailable, try switching to another one.';
+
+  @override
   String get loadingRecognize => 'AI is recognizing…';
 
   @override

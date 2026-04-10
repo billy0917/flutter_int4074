@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'services/storage_service.dart';
 import 'config/theme.dart';
 import 'app.dart';
@@ -27,7 +27,7 @@ class AppLoader extends StatelessWidget {
           return const PinPinGoApp();
         }
         if (snapshot.hasError) {
-          // Storage failed — still launch the app with empty state
+          // Storage failed still launch the app with empty state
           return const PinPinGoApp();
         }
         // Show a branded loading screen while Hive opens
