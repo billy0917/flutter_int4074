@@ -97,6 +97,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cameraAlbum => '相簿';
 
   @override
+  String get cameraModelFast => '快速';
+
+  @override
+  String get cameraModelStable => '穩定（較慢）';
+
+  @override
+  String get modelSwitchHint => '如模型無法使用，請嘗試切換到另一個模型。';
+
+  @override
   String get loadingRecognize => 'AI 正在辨識中…';
 
   @override

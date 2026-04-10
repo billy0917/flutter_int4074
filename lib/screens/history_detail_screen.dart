@@ -20,6 +20,7 @@ import '../widgets/info_row.dart';
 import '../utils/constants.dart';
 import '../utils/date_formatter.dart';
 import 'package:flutter_app/l10n/app_localizations.dart';
+import '../config/api_config.dart';
 
 class HistoryDetailScreen extends StatefulWidget {
   final LearningRecord record;
@@ -34,6 +35,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
   final TtsService _tts = TtsService();
   bool _loadingQuiz = false;
   String? _quizError;
+  ModelPreset _selectedPreset = ModelPreset.fast;
 
   @override
   void initState() {
@@ -79,7 +81,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
     });
 
     final result = _toRecognitionResult();
-    final questions = await ApiService.generateQuiz(result);
+    final questions = await ApiService.generateQuiz(result, preset: _selectedPreset);
     if (!mounted) return;
 
     if (questions == null || questions.isEmpty) {
@@ -99,6 +101,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
         'result': result,
         'questions': questions,
         'recordId': widget.record.id,
+        'preset': _selectedPreset,
       },
     );
   }
@@ -329,6 +332,58 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
               ],
 
               // Start quiz
+              // Model selector
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.cardBg,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: ModelPreset.values.map((preset) {
+                    final selected = _selectedPreset == preset;
+                    final isStable = preset == ModelPreset.stable;
+                    return Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _selectedPreset = preset),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: BoxDecoration(
+                            color: selected ? AppColors.primary : Colors.transparent,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          alignment: Alignment.center,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                isStable ? Icons.verified_rounded : Icons.bolt_rounded,
+                                size: 16,
+                                color: selected ? Colors.white : AppColors.textMedium,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                isStable
+                                    ? l.cameraModelStable
+                                    : l.cameraModelFast,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+                                  color: selected ? Colors.white : AppColors.textMedium,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+              const SizedBox(height: 12),
               if (_loadingQuiz)
                 Center(child: LoadingAnimation(message: l.generateQuizLoading))
               else
@@ -355,11 +410,22 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
               if (_quizError != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
-                  child: Text(
-                    _quizError!,
-                    style: const TextStyle(
-                        color: AppColors.error, fontSize: 13),
-                    textAlign: TextAlign.center,
+                  child: Column(
+                    children: [
+                      Text(
+                        _quizError!,
+                        style: const TextStyle(
+                            color: AppColors.error, fontSize: 13),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        l.modelSwitchHint,
+                        style: const TextStyle(
+                            color: AppColors.textLight, fontSize: 12),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
                 ),
 

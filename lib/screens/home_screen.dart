@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -455,14 +456,25 @@ class _RecentItem extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              record.objectNameZh.isNotEmpty
-                  ? record.objectNameZh.substring(0, 1)
-                  : '?',
-              style: const TextStyle(
-                fontSize: 30,
-                color: AppColors.textDark,
-              ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: record.imagePath.isNotEmpty &&
+                      File(record.imagePath).existsSync()
+                  ? Image.file(
+                      File(record.imagePath),
+                      width: 46,
+                      height: 46,
+                      fit: BoxFit.cover,
+                    )
+                  : Text(
+                      record.objectNameZh.isNotEmpty
+                          ? record.objectNameZh.substring(0, 1)
+                          : '?',
+                      style: const TextStyle(
+                        fontSize: 30,
+                        color: AppColors.textDark,
+                      ),
+                    ),
             ),
             const SizedBox(height: 4),
             Padding(

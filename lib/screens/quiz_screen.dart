@@ -10,6 +10,7 @@ import '../providers/locale_provider.dart';
 import '../services/api_service.dart';
 import '../services/tts_service.dart';
 import '../services/storage_service.dart';
+import '../config/api_config.dart';
 import '../widgets/clay_button.dart';
 import '../widgets/clay_card.dart';
 import '../widgets/tone_drawing_canvas.dart';
@@ -24,12 +25,14 @@ class QuizScreen extends StatefulWidget {
   final RecognitionResult recognitionResult;
   final List<QuizQuestion> questions;
   final String recordId;
+  final ModelPreset preset;
 
   const QuizScreen({
     super.key,
     required this.recognitionResult,
     required this.questions,
     required this.recordId,
+    this.preset = ModelPreset.fast,
   });
 
   @override
@@ -110,6 +113,7 @@ class _QuizScreenState extends State<QuizScreen>
       targetTone: _current.correctTone ?? 1,
       strokePoints: _strokePoints,
       canvasSize: _canvasSize,
+      preset: widget.preset,
     );
 
     if (!mounted) return;

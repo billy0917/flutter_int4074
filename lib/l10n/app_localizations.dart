@@ -266,6 +266,24 @@ abstract class AppLocalizations {
   /// **'相簿'**
   String get cameraAlbum;
 
+  /// No description provided for @cameraModelFast.
+  ///
+  /// In zh, this message translates to:
+  /// **'快速'**
+  String get cameraModelFast;
+
+  /// No description provided for @cameraModelStable.
+  ///
+  /// In zh, this message translates to:
+  /// **'穩定（較慢）'**
+  String get cameraModelStable;
+
+  /// No description provided for @modelSwitchHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'如模型無法使用，請嘗試切換到另一個模型。'**
+  String get modelSwitchHint;
+
   /// No description provided for @loadingRecognize.
   ///
   /// In zh, this message translates to:

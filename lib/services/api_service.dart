@@ -31,21 +31,25 @@ class ToneJudgmentResult {
 }
 
 class ApiService {
-  static Future<RecognitionResult?> recognizeObject(File imageFile) async {
+  static Future<RecognitionResult?> recognizeObject(
+    File imageFile, {
+    ModelPreset preset = ModelPreset.fast,
+  }) async {
+    final config = ApiConfig.getConfig(preset);
     try {
       final bytes = await imageFile.readAsBytes();
       final base64Image = base64Encode(bytes);
-      debugPrint('[API] Sending image (${(bytes.length / 1024).toStringAsFixed(1)} KB) to ${ApiConfig.baseUrl}');
+      debugPrint('[API] Sending image (${(bytes.length / 1024).toStringAsFixed(1)} KB) to ${ApiConfig.baseUrl} model=${config.model}');
 
       final response = await http
           .post(
             Uri.parse(ApiConfig.baseUrl),
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': 'Bearer ${ApiConfig.apiKey}',
+              'Authorization': 'Bearer ${config.apiKey}',
             },
             body: jsonEncode({
-              'model': ApiConfig.model,
+              'model': config.model,
               'messages': [
                 {
                   'role': 'system',
@@ -72,7 +76,7 @@ class ApiService {
               'temperature': 0.3,
             }),
           )
-          .timeout(const Duration(seconds: 30));
+          .timeout(Duration(seconds: preset == ModelPreset.stable ? 120 : 30));
 
       debugPrint('[API] Response status: ${response.statusCode}');
       debugPrint('[API] Response body: ${response.body.substring(0, response.body.length.clamp(0, 500))}');
@@ -114,7 +118,10 @@ class ApiService {
   }
 
   static Future<List<QuizQuestion>?> generateQuiz(
-      RecognitionResult result) async {
+    RecognitionResult result, {
+    ModelPreset preset = ModelPreset.fast,
+  }) async {
+    final config = ApiConfig.getConfig(preset);
     try {
       final tonesDesc = result.characters
           .map((c) => '${c.char}=${c.toneNumber}聲')
@@ -125,10 +132,10 @@ class ApiService {
             Uri.parse(ApiConfig.baseUrl),
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': 'Bearer ${ApiConfig.apiKey}',
+              'Authorization': 'Bearer ${config.apiKey}',
             },
             body: jsonEncode({
-              'model': ApiConfig.model,
+              'model': config.model,
               'messages': [
                 {
                   'role': 'system',
@@ -145,7 +152,7 @@ class ApiService {
               'temperature': 0.7,
             }),
           )
-          .timeout(const Duration(seconds: 30));
+          .timeout(Duration(seconds: preset == ModelPreset.stable ? 120 : 30));
 
       if (response.statusCode == 200) {
         final body = jsonDecode(response.body) as Map<String, dynamic>;
@@ -163,7 +170,9 @@ class ApiService {
     required int targetTone,
     required List<Offset> strokePoints,
     required Size canvasSize,
+    ModelPreset preset = ModelPreset.fast,
   }) async {
+    final config = ApiConfig.getConfig(preset);
     try {
       final description = _describeStroke(strokePoints, canvasSize);
 
@@ -172,10 +181,10 @@ class ApiService {
             Uri.parse(ApiConfig.baseUrl),
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': 'Bearer ${ApiConfig.apiKey}',
+              'Authorization': 'Bearer ${config.apiKey}',
             },
             body: jsonEncode({
-              'model': ApiConfig.model,
+              'model': config.model,
               'messages': [
                 {
                   'role': 'system',
@@ -191,7 +200,7 @@ class ApiService {
               'temperature': 0.3,
             }),
           )
-          .timeout(const Duration(seconds: 15));
+          .timeout(Duration(seconds: preset == ModelPreset.stable ? 60 : 15));
 
       if (response.statusCode == 200) {
         final body = jsonDecode(response.body) as Map<String, dynamic>;

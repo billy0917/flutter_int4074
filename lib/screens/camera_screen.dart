@@ -14,6 +14,7 @@ import '../utils/constants.dart';
 import '../utils/app_icons.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_app/l10n/app_localizations.dart';
+import '../config/api_config.dart';
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
@@ -26,6 +27,7 @@ class _CameraScreenState extends State<CameraScreen> {
   File? _image;
   bool _isLoading = false;
   String? _error;
+  ModelPreset _selectedPreset = ModelPreset.fast;
   final _imageService = ImageService();
 
   Future<void> _pickImage(ImageSource source) async {
@@ -54,7 +56,7 @@ class _CameraScreenState extends State<CameraScreen> {
       // Save image locally
       final savedPath = await _imageService.saveImageLocally(_image!);
 
-      final result = await ApiService.recognizeObject(_image!);
+      final result = await ApiService.recognizeObject(_image!, preset: _selectedPreset);
 
       final withPath = result!.copyWith(imagePath: savedPath ?? _image!.path);
 
@@ -68,7 +70,7 @@ class _CameraScreenState extends State<CameraScreen> {
       Navigator.pushNamed(
         context,
         AppRoutes.result,
-        arguments: withPath,
+        arguments: {'result': withPath, 'preset': _selectedPreset},
       );
     } catch (e) {
       if (!mounted) return;
@@ -130,6 +132,59 @@ class _CameraScreenState extends State<CameraScreen> {
           padding: const EdgeInsets.all(AppConstants.pagePadding),
           child: Column(
             children: [
+              // Model selector
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.cardBg,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: ModelPreset.values.map((preset) {
+                    final selected = _selectedPreset == preset;
+                    final cfg = ApiConfig.getConfig(preset);
+                    final isStable = preset == ModelPreset.stable;
+                    return Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _selectedPreset = preset),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: BoxDecoration(
+                            color: selected ? AppColors.primary : Colors.transparent,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          alignment: Alignment.center,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                isStable ? Icons.verified_rounded : Icons.bolt_rounded,
+                                size: 16,
+                                color: selected ? Colors.white : AppColors.textMedium,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                isStable
+                                    ? (l.cameraModelStable)
+                                    : (l.cameraModelFast),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+                                  color: selected ? Colors.white : AppColors.textMedium,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+              const SizedBox(height: 12),
               // Image preview
               Expanded(
                 child: ClipRRect(
@@ -173,11 +228,22 @@ class _CameraScreenState extends State<CameraScreen> {
                 if (_error != null)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 12),
-                    child: Text(
-                      _error!,
-                      style:
-                          const TextStyle(color: AppColors.error, fontSize: 14),
-                      textAlign: TextAlign.center,
+                    child: Column(
+                      children: [
+                        Text(
+                          _error!,
+                          style: const TextStyle(
+                              color: AppColors.error, fontSize: 14),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          l.modelSwitchHint,
+                          style: const TextStyle(
+                              color: AppColors.textLight, fontSize: 12),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
                   ),
                 if (_image == null)
