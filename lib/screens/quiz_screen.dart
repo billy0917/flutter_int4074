@@ -46,7 +46,6 @@ class _QuizScreenState extends State<QuizScreen>
   bool _answered = false;
   bool? _isCorrect;
   String _feedback = '';
-  bool _loadingJudge = false;
   final List<Map<String, dynamic>> _results = [];
   final TtsService _tts = TtsService();
 
@@ -102,14 +101,8 @@ class _QuizScreenState extends State<QuizScreen>
   Future<void> _submitDrawTone() async {
     if (_strokePoints.isEmpty) return;
     final l = AppLocalizations.of(context)!;
-    // Only show the loading spinner — do NOT set _answered yet.
-    // Setting _answered=true here would immediately show the ❌ feedback
-    // before we even know if the answer is correct.
-    setState(() {
-      _loadingJudge = true;
-    });
 
-    final judgment = await ApiService.judgeToneDrawing(
+    final judgment = ApiService.judgeToneDrawing(
       targetTone: _current.correctTone ?? 1,
       strokePoints: _strokePoints,
       canvasSize: _canvasSize,
@@ -123,7 +116,6 @@ class _QuizScreenState extends State<QuizScreen>
         (isCorrect ? l.quizCorrect : l.quizIncorrect);
 
     setState(() {
-      _loadingJudge = false;
       _answered = true;
       _isCorrect = isCorrect;
       _feedback = feedback;
@@ -409,10 +401,7 @@ class _QuizScreenState extends State<QuizScreen>
               // Submit button for draw tone
               if (_current.type == 'draw_tone' && !_answered) ...[
                 const SizedBox(height: 12),
-                if (_loadingJudge)
-                  Center(child: LoadingAnimation(message: l.quizSubmit))
-                else
-                  ClayButton(
+                ClayButton(
                     color: AppColors.primary,
                     width: double.infinity,
                     onTap:

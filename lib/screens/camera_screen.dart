@@ -27,7 +27,7 @@ class _CameraScreenState extends State<CameraScreen> {
   File? _image;
   bool _isLoading = false;
   String? _error;
-  ModelPreset _selectedPreset = ModelPreset.fast;
+  ModelPreset _selectedPreset = ModelPreset.stable;
   final _imageService = ImageService();
 
   Future<void> _pickImage(ImageSource source) async {

@@ -35,7 +35,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
   final TtsService _tts = TtsService();
   bool _loadingQuiz = false;
   String? _quizError;
-  ModelPreset _selectedPreset = ModelPreset.fast;
+  ModelPreset _selectedPreset = ModelPreset.stable;
 
   @override
   void initState() {

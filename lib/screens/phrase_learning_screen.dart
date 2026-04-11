@@ -4,6 +4,7 @@ import 'dart:async';
 import '../config/theme.dart';
 import '../models/daily_phrase.dart';
 import '../services/tts_service.dart';
+import '../services/phrase_audio_service.dart';
 import '../services/sense_voice_service.dart';
 import '../services/storage_service.dart';
 import '../config/game_config.dart';
@@ -25,6 +26,7 @@ class PhraseLearningScreen extends StatefulWidget {
 class _PhraseLearningScreenState extends State<PhraseLearningScreen>
     with TickerProviderStateMixin {
   final TtsService _tts = TtsService();
+  final PhraseAudioService _phraseAudio = PhraseAudioService();
   final SenseVoiceService _stt = SenseVoiceService.instance;
   StreamSubscription<String>? _partialResultSubscription;
   int _currentIndex = 0;
@@ -55,7 +57,6 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
   @override
   void initState() {
     super.initState();
-    _tts.init();
     _isModelReady = _stt.isModelReady;
     _loadSavedScores();
     _partialResultSubscription = _stt.partialResults.listen((text) {
@@ -77,9 +78,9 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
       duration: const Duration(milliseconds: 300),
     );
     _updateProgress();
-    // Auto-play TTS for first card
+    // Auto-play audio for first card
     Future.delayed(const Duration(milliseconds: 600), () {
-      if (mounted) _tts.speak(_current.chinese);
+      if (mounted) _playCurrentPhrase();
     });
   }
 
@@ -94,8 +95,18 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
     }
   }
 
+  /// Play current phrase audio (edge-tts asset), fallback to device TTS.
+  Future<void> _playCurrentPhrase() async {
+    final ok = await _phraseAudio.play(widget.category.id, _currentIndex);
+    if (!ok) {
+      await _tts.init();
+      await _tts.speak(_current.chinese);
+    }
+  }
+
   @override
   void dispose() {
+    _phraseAudio.dispose();
     _tts.dispose();
     _partialResultSubscription?.cancel();
     // Don't dispose the singleton STT service
@@ -230,7 +241,8 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                AppIcons.svg(AppIcons.star, size: 22, color: const Color(0xFFFFD93D)),
+                AppIcons.svg(AppIcons.star,
+                    size: 22, color: const Color(0xFFFFD93D)),
                 const SizedBox(width: 4),
                 Text(
                   '$totalStars / $maxStars',
@@ -247,8 +259,7 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
             // Per-phrase breakdown with stars
             ...List.generate(_phrases.length, (i) {
               final best = _bestScores[i];
-              final stars =
-                  best != null ? GameConfig.starsForScore(best) : 0;
+              final stars = best != null ? GameConfig.starsForScore(best) : 0;
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 2),
                 child: Row(
@@ -260,8 +271,8 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
                       ),
                     ),
                     best != null
-                          ? AppIcons.starRow(stars, size: 16)
-                          : AppIcons.starRow(0, size: 16),
+                        ? AppIcons.starRow(stars, size: 16)
+                        : AppIcons.starRow(0, size: 16),
                   ],
                 ),
               );
@@ -299,7 +310,7 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
     HapticFeedback.lightImpact();
     // Auto-play
     Future.delayed(const Duration(milliseconds: 350), () {
-      if (mounted) _tts.speak(_phrases[index].chinese);
+      if (mounted) _playCurrentPhrase();
     });
   }
 
@@ -318,6 +329,7 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
   }
 
   Future<void> _startListening() async {
+    await _phraseAudio.stop();
     await _tts.stop();
 
     if (_stt.isInitializing) {
@@ -409,8 +421,7 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
       if (prev == null || score > prev) {
         _bestScores[_currentIndex] = score;
       }
-      _attemptCounts[_currentIndex] =
-          (_attemptCounts[_currentIndex] ?? 0) + 1;
+      _attemptCounts[_currentIndex] = (_attemptCounts[_currentIndex] ?? 0) + 1;
     });
     HapticFeedback.lightImpact();
 
@@ -455,8 +466,7 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
   String _normalize(String s) {
     return s
         .replaceAll(RegExp(r'[\s\u3000]+'), '') // CJK & latin whitespace
-      .replaceAll(
-        RegExp("[，。！？、；：\"'（）《》—…,.!?;:()\\[\\]{}-]"), '')
+        .replaceAll(RegExp("[，。！？、；：\"'（）《》—…,.!?;:()\\[\\]{}-]"), '')
         .toLowerCase();
   }
 
@@ -469,9 +479,7 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
         if (a[i - 1] == b[j - 1]) {
           dp[i][j] = dp[i - 1][j - 1] + 1;
         } else {
-          dp[i][j] = dp[i - 1][j] > dp[i][j - 1]
-              ? dp[i - 1][j]
-              : dp[i][j - 1];
+          dp[i][j] = dp[i - 1][j] > dp[i][j - 1] ? dp[i - 1][j] : dp[i][j - 1];
         }
       }
     }
@@ -556,7 +564,7 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
                     icon: Icons.volume_up_rounded,
                     color: AppColors.primary,
                     label: l.phraseListenAgain,
-                    onTap: () => _tts.speak(_current.chinese),
+                    onTap: () => _playCurrentPhrase(),
                   ),
                   const SizedBox(width: 20),
                   // Mic button
@@ -673,8 +681,7 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  GameConfig.starDisplay(
-                      GameConfig.starsForScore(bestScore)),
+                  GameConfig.starDisplay(GameConfig.starsForScore(bestScore)),
                   style: const TextStyle(fontSize: 18),
                 ),
                 const SizedBox(width: 8),
@@ -1150,8 +1157,7 @@ class _ScoreDisplayState extends State<_ScoreDisplay>
               curve: const Interval(0.6, 0.9),
             ),
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
                 color: AppColors.primary.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(20),
