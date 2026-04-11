@@ -27,7 +27,7 @@ class ApiConfig {
     ),
     ModelPreset.stable: ModelConfig(
       label: '穩定（較慢）',
-      apiKey: 'sk-ZoMPnEHOfVrA8OnN2GKJxurZwnYsUogLgKClB7GditENmLNW',
+      apiKey: 'sk-HaEkbrMfD7eW1blzZNIp0iKaiRixMxNV1lQfrF96HJrSo54C',
       model: 'qwen3-vl-235b-a22b-instruct',
     ),
   };
