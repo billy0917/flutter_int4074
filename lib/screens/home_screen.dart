@@ -1,13 +1,13 @@
 import 'dart:async';
-import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../config/theme.dart';
 import '../config/routes.dart';
 import '../config/game_config.dart';
+import '../config/daily_vocab_data.dart';
 import '../providers/history_provider.dart';
-import '../models/learning_record.dart';
 import '../services/sense_voice_service.dart';
 import '../services/storage_service.dart';
 import '../utils/constants.dart';
@@ -23,8 +23,18 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen>
     with TickerProviderStateMixin {
+  static const double _coverFlowViewportFraction = 0.55;
+  static const double _coverFlowCardWidthFactor = 0.68;
+  static const double _coverFlowOverlapFactor = 0.24;
+  static const double _coverFlowScaleDrop = 0.18;
+  static const double _coverFlowOpacityDrop = 0.18;
+  static const int _coverFlowVisibleSideCards = 2;
+
   late AnimationController _staggerController;
-  late List<Animation<Offset>> _slideAnimations;
+  late List<Animation<double>> _fadeAnimations;
+  late PageController _vocabPageController;
+  late final List<Widget> _coverFlowCards;
+  int _currentVocabIndex = 0;
 
   @override
   void initState() {
@@ -41,20 +51,33 @@ class _HomeScreenState extends State<HomeScreen>
       );
     });
 
+    final now = DateTime.now();
+    final dayOfYear = now.difference(DateTime(now.year)).inDays;
+    _currentVocabIndex = dayOfYear % kDailyVocabList.length;
+    _coverFlowCards = List<Widget>.generate(
+      kDailyVocabList.length,
+      (index) => RepaintBoundary(
+        child: _VocabCard(vocab: kDailyVocabList[index]),
+      ),
+      growable: false,
+    );
+
+    _vocabPageController = PageController(
+      initialPage: _currentVocabIndex,
+      viewportFraction: _coverFlowViewportFraction,
+    );
+
     _staggerController = AnimationController(
       vsync: this,
       duration: AppConstants.animSlow,
     );
 
-    _slideAnimations = List.generate(
-      4,
-      (i) => Tween<Offset>(
-        begin: const Offset(0, 0.35),
-        end: Offset.zero,
-      ).animate(
+    _fadeAnimations = List.generate(
+      3,
+      (i) => Tween<double>(begin: 0.0, end: 1.0).animate(
         CurvedAnimation(
           parent: _staggerController,
-          curve: Interval(i * 0.10, (i * 0.10) + 0.5, curve: Curves.easeOut),
+          curve: Interval(i * 0.2, (i * 0.2) + 0.6, curve: Curves.easeOut),
         ),
       ),
     );
@@ -65,6 +88,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void dispose() {
     _staggerController.dispose();
+    _vocabPageController.dispose();
     super.dispose();
   }
 
@@ -75,6 +99,10 @@ class _HomeScreenState extends State<HomeScreen>
     return l.homeGreetingEvening;
   }
 
+  void _onPageChanged(int index) {
+    setState(() => _currentVocabIndex = index);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
@@ -83,51 +111,311 @@ class _HomeScreenState extends State<HomeScreen>
     final level = GameConfig.levelForXp(xp);
     final streak = StorageService.getStreak();
     final totalStars = StorageService.getTotalStars();
+    final nextLvl = GameConfig.nextLevel(xp);
+    final nextXp = nextLvl?.xpRequired ?? xp;
+    final vocab = kDailyVocabList[_currentVocabIndex % kDailyVocabList.length];
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(
-              horizontal: AppConstants.pagePadding, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ── Header
-              _slideIn(
-                0,
-                Row(
-                  children: [
-                    // 等級頭像 (SVG)
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(14),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.08),
-                            offset: const Offset(2, 3),
-                            blurRadius: 6,
+      body: Column(
+        children: [
+          // ── Orange header (extends under status bar)
+          Container(
+            color: AppColors.primaryLight,
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).viewPadding.top,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // ── Top bar: mascot, stats, settings
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.4),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        alignment: Alignment.center,
+                        child: AppIcons.svg(
+                          AppIcons.levelIcon(level.level),
+                          size: 34,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(child: _TopStat(icon: AppIcons.fire, value: '$streak', label: '連續天')),
+                            const SizedBox(width: 4),
+                            Expanded(child: _TopStat(icon: AppIcons.star, value: '$totalStars', label: '星星')),
+                            const SizedBox(width: 4),
+                            Expanded(child: _TopStat(icon: AppIcons.book, value: '${history.totalWords}', label: '已學詞語')),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: () => Navigator.pushNamed(context, AppRoutes.settings),
+                        child: Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.3),
+                            borderRadius: BorderRadius.circular(14),
                           ),
-                          BoxShadow(
-                            color: Colors.white.withValues(alpha: 0.7),
-                            offset: const Offset(-2, -2),
-                            blurRadius: 4,
+                          alignment: Alignment.center,
+                          child: const Icon(Icons.settings_rounded,
+                              color: Colors.white, size: 26),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // ── Example sentence banner
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              height: 1,
+                              color: Colors.white.withValues(alpha: 0.4),
+                            ),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              '例子',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Container(
+                              height: 1,
+                              color: Colors.white.withValues(alpha: 0.4),
+                            ),
                           ),
                         ],
                       ),
-                      alignment: Alignment.center,
-                      child: AppIcons.svg(
-                        AppIcons.levelIcon(level.level),
-                        size: 28,
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () => _vocabPageController.previousPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            ),
+                            child: Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.3),
+                                shape: BoxShape.circle,
+                              ),
+                              alignment: Alignment.center,
+                              child: const Icon(Icons.arrow_back_rounded,
+                                  color: Colors.white, size: 24),
+                            ),
+                          ),
+                          Expanded(
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 250),
+                              child: Column(
+                                key: ValueKey(_currentVocabIndex),
+                                children: [
+                                  Text(
+                                    vocab.exampleZh,
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    vocab.examplePinyin,
+                                    textAlign: TextAlign.center,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.white.withValues(alpha: 0.95),
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    vocab.exampleEn,
+                                    textAlign: TextAlign.center,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.white.withValues(alpha: 0.85),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () => _vocabPageController.nextPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            ),
+                            child: Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.3),
+                                shape: BoxShape.circle,
+                              ),
+                              alignment: Alignment.center,
+                              child: const Icon(Icons.arrow_forward_rounded,
+                                  color: Colors.white, size: 24),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // ── Beige content area
+          Expanded(
+            child: Container(
+              color: AppColors.background,
+              child: Column(
+                children: [
+                  // 每日生字 label
+                  FadeTransition(
+                    opacity: _fadeAnimations[0],
+                    child: const Padding(
+                      padding: EdgeInsets.fromLTRB(28, 12, 28, 0),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          '每日生字',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textLight,
+                          ),
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                  ),
+
+                  // Vocab carousel – Cover Flow style
+                  //
+                  // TUNABLE VALUES:
+                  // _coverFlowCardWidthFactor   -> card width ratio
+                  // _coverFlowOverlapFactor     -> spacing / overlap between cards
+                  // _coverFlowScaleDrop         -> side-card size reduction
+                  // _coverFlowOpacityDrop       -> side-card fade amount
+                  // _coverFlowVisibleSideCards  -> visible cards on each side
+                  // _coverFlowViewportFraction  -> swipe sensitivity / page snap width
+                  Expanded(
+                    child: FadeTransition(
+                      opacity: _fadeAnimations[1],
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final totalWidth = constraints.maxWidth;
+                          final cardW = totalWidth * _coverFlowCardWidthFactor;
+                          return Stack(
+                            children: [
+                              // Visual layer: repaint-only transforms for smooth scrolling.
+                              Positioned.fill(
+                                child: IgnorePointer(
+                                  child: Flow(
+                                    delegate: _CoverFlowDelegate(
+                                      controller: _vocabPageController,
+                                      fallbackPage:
+                                          _currentVocabIndex.toDouble(),
+                                      cardWidth: cardW,
+                                      overlapFactor: _coverFlowOverlapFactor,
+                                      scaleDrop: _coverFlowScaleDrop,
+                                      opacityDrop: _coverFlowOpacityDrop,
+                                      visibleSideCards:
+                                          _coverFlowVisibleSideCards,
+                                    ),
+                                    children: _coverFlowCards,
+                                  ),
+                                ),
+                              ),
+                              // Gesture layer: keep native PageView drag physics.
+                              PageView.builder(
+                                controller: _vocabPageController,
+                                onPageChanged: _onPageChanged,
+                                itemCount: kDailyVocabList.length,
+                                itemBuilder: (_, __) => const SizedBox.expand(),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+
+                  // Feature buttons
+                  FadeTransition(
+                    opacity: _fadeAnimations[2],
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _FeatureButton(
+                              iconWidget:
+                                  AppIcons.svg(AppIcons.chat, size: 30),
+                              titleZh: '日常用語',
+                              titleEn: 'General word',
+                              onTap: () => Navigator.pushNamed(
+                                  context, AppRoutes.phraseCategories),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _FeatureButton(
+                              iconWidget:
+                                  AppIcons.svg(AppIcons.scroll, size: 30),
+                              titleZh: '歷史記錄',
+                              titleEn: 'History',
+                              onTap: () => Navigator.pushNamed(
+                                  context, AppRoutes.history),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Bottom info row: greeting + level
+                  FadeTransition(
+                    opacity: _fadeAnimations[2],
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Text(
                             _greeting(l),
@@ -135,243 +423,37 @@ class _HomeScreenState extends State<HomeScreen>
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
                               color: AppColors.textDark,
-                              height: 1.2,
                             ),
                           ),
-                          const SizedBox(height: 2),
+                          const Spacer(),
                           Text(
-                            'Lv.${level.level} ${level.titleZh}',
+                            '${level.titleZh} LV.${level.level}  $xp/${nextXp}XP',
                             style: const TextStyle(
-                              fontSize: 13,
+                              fontSize: 14,
                               color: AppColors.textMedium,
-                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    _ClayIconButton(
-                      icon: Icons.settings_rounded,
-                      onTap: () =>
-                          Navigator.pushNamed(context, AppRoutes.settings),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // ── Stats row
-              _slideIn(
-                1,
-                Row(
-                  children: [
-                    Expanded(
-                      child: _StatChip(
-                        icon: AppIcons.svg(AppIcons.fire, size: 22),
-                        value: '$streak',
-                        label: l.statsStreak(streak).replaceAll(
-                            RegExp(r'[0-9]+\s*'), ''),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _StatChip(
-                        icon: AppIcons.svg(AppIcons.star, size: 22,
-                            color: const Color(0xFFFFD93D)),
-                        value: '$totalStars',
-                        label: '星星',
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _StatChip(
-                        icon: AppIcons.svg(AppIcons.book, size: 22),
-                        value: '${history.totalWords}',
-                        label: '已學詞語',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // ── 日常短語（全寬卡片）
-              _slideIn(
-                2,
-                GestureDetector(
-                  onTap: () => Navigator.pushNamed(
-                      context, AppRoutes.phraseCategories),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: AppColors.cardBg,
-                      borderRadius:
-                          BorderRadius.circular(AppConstants.cardRadius),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.08),
-                          offset: const Offset(4, 4),
-                          blurRadius: 8,
-                        ),
-                        BoxShadow(
-                          color: Colors.white.withValues(alpha: 0.75),
-                          offset: const Offset(-3, -3),
-                          blurRadius: 6,
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 52,
-                          height: 52,
-                          decoration: BoxDecoration(
-                            color: AppColors.tone2.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          alignment: Alignment.center,
-                          child: AppIcons.svg(AppIcons.chat, size: 28),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                l.featurePhrases,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.textDark,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                l.featurePhrasesSub,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: AppColors.textMedium,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Icon(
-                          Icons.arrow_forward_rounded,
-                          color: AppColors.textLight,
-                          size: 24,
-                        ),
-                      ],
-                    ),
                   ),
-                ),
+                ],
               ),
-
-              // ── Recent learned
-              if (history.recentRecords.isNotEmpty) ...[
-                const SizedBox(height: 24),
-                _slideIn(
-                  3,
-                  Text(
-                    l.recentLearned,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textDark,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                _slideIn(
-                  3,
-                  SizedBox(
-                    height: 96,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: history.recentRecords.length,
-                      itemBuilder: (ctx, i) {
-                        final rec = history.recentRecords[i];
-                        return _RecentItem(
-                          record: rec,
-                          onTap: () => Navigator.pushNamed(
-                            context,
-                            AppRoutes.historyDetail,
-                            arguments: rec,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ],
-
-              const SizedBox(height: 24),
-            ],
+            ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _slideIn(int index, Widget child) {
-    if (index >= _slideAnimations.length) return child;
-    return SlideTransition(
-      position: _slideAnimations[index],
-      child: FadeTransition(
-        opacity: _staggerController,
-        child: child,
+        ],
       ),
     );
   }
 }
 
-// ── Clay icon button (settings etc.)
-class _ClayIconButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-
-  const _ClayIconButton({required this.icon, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 48,
-        height: 48,
-        decoration: BoxDecoration(
-          color: AppColors.cardBg,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              offset: const Offset(3, 3),
-              blurRadius: 6,
-            ),
-            BoxShadow(
-              color: Colors.white.withValues(alpha: 0.7),
-              offset: const Offset(-2, -2),
-              blurRadius: 4,
-            ),
-          ],
-        ),
-        alignment: Alignment.center,
-        child: Icon(icon, color: AppColors.textMedium, size: 22),
-      ),
-    );
-  }
-}
-
-// ── Stat chip (streak, stars, words) — 使用 Widget icon 取代 emoji
-class _StatChip extends StatelessWidget {
-  final Widget icon;
+// ── Top stat badge (in orange header)
+class _TopStat extends StatelessWidget {
+  final String icon;
   final String value;
   final String label;
 
-  const _StatChip({
+  const _TopStat({
     required this.icon,
     required this.value,
     required this.label,
@@ -380,117 +462,288 @@ class _StatChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            offset: const Offset(3, 3),
-            blurRadius: 6,
-          ),
-          BoxShadow(
-            color: Colors.white.withValues(alpha: 0.7),
-            offset: const Offset(-2, -2),
-            blurRadius: 4,
-          ),
-        ],
+        color: Colors.white.withValues(alpha: 0.25),
+        borderRadius: BorderRadius.circular(30), // Rounded corners for pill shape
       ),
-      child: Column(
-        children: [
-          icon,
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textDark,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AppIcons.svg(icon, size: 20),
+            const SizedBox(width: 4),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    height: 1.1,
+                  ),
+                ),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 9,
+                    color: Colors.white.withValues(alpha: 0.9),
+                    height: 1.1,
+                  ),
+                ),
+              ],
             ),
-          ),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 10,
-              color: AppColors.textLight,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
-// ── Recent learned item
-class _RecentItem extends StatelessWidget {
-  final LearningRecord record;
+// ── Daily vocab card for the carousel
+class _VocabCard extends StatelessWidget {
+  final DailyVocab vocab;
+
+  const _VocabCard({required this.vocab});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(4, 8, 4, 24),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(36),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            vocab.pinyin,
+            style: const TextStyle(
+              fontSize: 28,
+              color: AppColors.textMedium,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 12),
+          FittedBox(
+            child: Text(
+              vocab.chinese,
+              style: const TextStyle(
+                fontSize: 56,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textDark,
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          _buildVisual(),
+          const SizedBox(height: 20),
+          FittedBox(
+            child: Text(
+              vocab.english,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVisual() {
+    if (vocab.imagePath.isNotEmpty) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        clipBehavior: Clip.hardEdge,
+        child: Image.asset(
+          vocab.imagePath,
+          width: 90,
+          height: 90,
+          fit: BoxFit.cover,
+          filterQuality: FilterQuality.low,
+          errorBuilder: (_, __, ___) => _fallbackVisual(),
+        ),
+      );
+    }
+    return _fallbackVisual();
+  }
+
+  Widget _fallbackVisual() {
+    return Container(
+      width: 90, // Slightly reduced
+      height: 90,
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        vocab.chinese.isNotEmpty ? vocab.chinese.substring(0, 1) : '?',
+        style: const TextStyle(fontSize: 48, color: AppColors.primary),
+      ),
+    );
+  }
+}
+
+// ── Feature quick-access button
+class _FeatureButton extends StatelessWidget {
+  final Widget iconWidget;
+  final String titleZh;
+  final String titleEn;
   final VoidCallback onTap;
 
-  const _RecentItem({required this.record, required this.onTap});
+  const _FeatureButton({
+    required this.iconWidget,
+    required this.titleZh,
+    required this.titleEn,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 78,
-        margin: const EdgeInsets.only(right: 10),
-        decoration: BoxDecoration(
-          color: AppColors.cardBg,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              offset: const Offset(3, 3),
-              blurRadius: 6,
-            ),
-            BoxShadow(
-              color: Colors.white.withValues(alpha: 0.6),
-              offset: const Offset(-2, -2),
-              blurRadius: 4,
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+        decoration: clayDecoration(color: AppColors.cardBg, radius: 24),
+        child: Row(
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: record.imagePath.isNotEmpty &&
-                      File(record.imagePath).existsSync()
-                  ? Image.file(
-                      File(record.imagePath),
-                      width: 46,
-                      height: 46,
-                      fit: BoxFit.cover,
-                    )
-                  : Text(
-                      record.objectNameZh.isNotEmpty
-                          ? record.objectNameZh.substring(0, 1)
-                          : '?',
-                      style: const TextStyle(
-                        fontSize: 30,
-                        color: AppColors.textDark,
-                      ),
-                    ),
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.6),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              alignment: Alignment.center,
+              child: iconWidget,
             ),
-            const SizedBox(height: 4),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
-              child: Text(
-                record.objectNameZh.length > 3
-                    ? record.objectNameZh.substring(0, 3)
-                    : record.objectNameZh,
-                style: const TextStyle(
-                    fontSize: 11, color: AppColors.textMedium),
-                overflow: TextOverflow.ellipsis,
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    titleZh,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textDark,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    titleEn,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textMedium,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
         ),
       ),
     );
+  }
+}
+
+class _CoverFlowDelegate extends FlowDelegate {
+  final PageController controller;
+  final double fallbackPage;
+  final double cardWidth;
+  final double overlapFactor;
+  final double scaleDrop;
+  final double opacityDrop;
+  final int visibleSideCards;
+
+  _CoverFlowDelegate({
+    required this.controller,
+    required this.fallbackPage,
+    required this.cardWidth,
+    required this.overlapFactor,
+    required this.scaleDrop,
+    required this.opacityDrop,
+    required this.visibleSideCards,
+  }) : super(repaint: controller);
+
+  @override
+  BoxConstraints getConstraintsForChild(
+      int i, BoxConstraints constraints) {
+    return BoxConstraints(
+      minWidth: cardWidth,
+      maxWidth: cardWidth,
+      minHeight: 0,
+      maxHeight: constraints.maxHeight,
+    );
+  }
+
+  @override
+  void paintChildren(FlowPaintingContext context) {
+    double page = fallbackPage;
+    if (controller.hasClients && controller.position.haveDimensions) {
+      page = controller.page ?? fallbackPage;
+    }
+
+    final int center = page.round();
+    final int start = math.max(0, center - visibleSideCards);
+    final int end = math.min(context.childCount - 1, center + visibleSideCards);
+    final List<int> visible = <int>[
+      for (int index = start; index <= end; index++) index,
+    ];
+
+    visible.sort(
+      (a, b) => (page - b).abs().compareTo((page - a).abs()),
+    );
+
+    for (final index in visible) {
+      final Size? childSize = context.getChildSize(index);
+      if (childSize == null) {
+        continue;
+      }
+
+      final double diff = page - index;
+      final double distance = diff.abs();
+      final double scale = (1.0 - (distance * scaleDrop)).clamp(0.55, 1.0);
+      final double opacity =
+          (1.0 - (distance * opacityDrop)).clamp(0.0, 1.0);
+      final double scaledWidth = childSize.width * scale;
+      final double scaledHeight = childSize.height * scale;
+      final double dx =
+          ((context.size.width - scaledWidth) / 2) -
+          (diff * context.size.width * overlapFactor);
+      final double dy = (context.size.height - scaledHeight) / 2;
+
+      final Matrix4 transform = Matrix4.identity()
+        ..setEntry(3, 2, 0.001)
+        // ignore: deprecated_member_use
+        ..translate(dx, dy)
+        // ignore: deprecated_member_use
+        ..scale(scale, scale);
+
+      context.paintChild(index, transform: transform, opacity: opacity);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _CoverFlowDelegate oldDelegate) {
+    return oldDelegate.controller != controller ||
+        oldDelegate.fallbackPage != fallbackPage ||
+        oldDelegate.cardWidth != cardWidth ||
+        oldDelegate.overlapFactor != overlapFactor ||
+        oldDelegate.scaleDrop != scaleDrop ||
+        oldDelegate.opacityDrop != opacityDrop ||
+        oldDelegate.visibleSideCards != visibleSideCards;
   }
 }
