@@ -49,9 +49,9 @@
   "resultEnglish": "English",
   "resultCantonese": "Cantonese",
   "resultExample": "Example",
-  "resultListen": "🔊 Listen",
-  "resultStartQuiz": "📝 Start Quiz",
-  "resultRetake": "📷 Take Another",
+  "resultListen": "Listen",
+  "resultStartQuiz": "Start Quiz",
+  "resultRetake": "Take Another",
   "quizTitle": "Quiz",
   "quizQuestionOf": "Q{current} / {total}",
   "@quizQuestionOf": {

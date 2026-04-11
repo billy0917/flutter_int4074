@@ -11,6 +11,7 @@ import '../screens/settings_screen.dart';
 import '../screens/phrase_categories_screen.dart';
 import '../screens/phrase_learning_screen.dart';
 import '../screens/phrase_history_screen.dart';
+import '../screens/matching_game_screen.dart';
 import '../config/api_config.dart';
 import '../models/recognition_result.dart';
 import '../models/learning_record.dart';
@@ -30,6 +31,7 @@ class AppRoutes {
   static const phraseCategories = '/phrase-categories';
   static const phraseLearning = '/phrase-learning';
   static const phraseHistory = '/phrase-history';
+  static const matchingGame = '/matching-game';
 
   static Route<dynamic> generateRoute(RouteSettings settings_) {
     switch (settings_.name) {
@@ -75,6 +77,8 @@ class AppRoutes {
         return _slideRoute(PhraseLearningScreen(category: category));
       case phraseHistory:
         return _slideRoute(const PhraseHistoryScreen());
+      case matchingGame:
+        return _slideRoute(const MatchingGameScreen());
       default:
         return _fadeRoute(const SplashScreen());
     }

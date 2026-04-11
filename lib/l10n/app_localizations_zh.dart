@@ -130,13 +130,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get resultExample => '例句';
 
   @override
-  String get resultListen => '🔊 聽發音';
+  String get resultListen => '聽發音';
 
   @override
-  String get resultStartQuiz => '📝 開始測驗';
+  String get resultStartQuiz => '開始測驗';
 
   @override
-  String get resultRetake => '📷 再拍一張';
+  String get resultRetake => '再拍一張';
 
   @override
   String get quizTitle => '小測驗';

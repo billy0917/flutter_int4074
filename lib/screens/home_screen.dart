@@ -399,10 +399,13 @@ class _HomeScreenState extends State<HomeScreen>
                             child: _FeatureButton(
                               iconWidget:
                                   AppIcons.svg(AppIcons.scroll, size: context.s(28)),
-                              titleZh: '歷史記錄',
-                              titleEn: 'History',
-                              onTap: () => Navigator.pushNamed(
-                                  context, AppRoutes.history),
+                              titleZh: '對對碰',
+                              titleEn: 'Match Game',
+                              onTap: () async {
+                                await Navigator.pushNamed(
+                                    context, AppRoutes.matchingGame);
+                                if (mounted) setState(() {});
+                              },
                             ),
                           ),
                         ],
