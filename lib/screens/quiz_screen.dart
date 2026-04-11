@@ -59,6 +59,7 @@ class _QuizScreenState extends State<QuizScreen>
       GlobalKey<ToneDrawingCanvasState>();
   List<Offset> _strokePoints = [];
   Size _canvasSize = Size.zero;
+  final TextEditingController _fillController = TextEditingController();
 
   @override
   void initState() {
@@ -94,6 +95,7 @@ class _QuizScreenState extends State<QuizScreen>
     _shakeController.dispose();
     _correctController.dispose();
     _starController.dispose();
+    _fillController.dispose();
     super.dispose();
   }
 
@@ -192,6 +194,7 @@ class _QuizScreenState extends State<QuizScreen>
         _isCorrect = null;
         _feedback = '';
         _strokePoints = [];
+        _fillController.clear();
       });
       _canvasKey.currentState?.clear();
     } else {
@@ -434,6 +437,10 @@ class _QuizScreenState extends State<QuizScreen>
         return _buildDrawTone(l);
       case 'listen_pick_char':
         return _buildListenPick(isZh, l);
+      case 'fill_blank':
+        return _buildFillBlank(isZh, l);
+      case 'minimal_pairs':
+        return _buildMinimalPairs(isZh, l);
       case 'match_tone_shape':
         return _buildToneShapePick(isZh);
       default:
@@ -530,7 +537,7 @@ class _QuizScreenState extends State<QuizScreen>
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       crossAxisCount: 2,
-      childAspectRatio: 2.5,
+      childAspectRatio: 2.0,
       crossAxisSpacing: 8,
       mainAxisSpacing: 8,
       children: List.generate(_current.options.length, (i) {
@@ -552,7 +559,7 @@ class _QuizScreenState extends State<QuizScreen>
           answered: _answered,
           onTap: () => _selectOption(i),
           prefix: ToneContourWidget(
-              toneNumber: toneNum, width: 40, height: 20),
+              toneNumber: toneNum, width: 36, height: 18),
         );
       }),
     );
@@ -560,6 +567,129 @@ class _QuizScreenState extends State<QuizScreen>
 
   Widget _buildMultipleChoice(bool isZh) {
     return Column(children: _buildOptions(isZh));
+  }
+
+  Widget _buildFillBlank(bool isZh, AppLocalizations l) {
+    final targetChar = _current.targetChar ?? '';
+    return Column(
+      children: [
+        Text(
+          targetChar,
+          style: TextStyle(
+            fontSize: context.sp(48),
+            fontWeight: FontWeight.bold,
+            color: AppColors.textDark,
+          ),
+        ),
+        const SizedBox(height: 16),
+        TextField(
+          controller: _fillController,
+          enabled: !_answered,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: context.sp(20),
+            color: AppColors.textDark,
+          ),
+          decoration: InputDecoration(
+            hintText: isZh ? '輸入拼音...' : 'Type pinyin...',
+            hintStyle: const TextStyle(color: AppColors.textLight),
+            filled: true,
+            fillColor: AppColors.cardBgAlt,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: AppColors.primary, width: 2),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        if (!_answered)
+          ClayButton(
+            color: AppColors.primary,
+            width: double.infinity,
+            onTap: _fillController.text.trim().isNotEmpty
+                ? () => _submitFillBlank()
+                : null,
+            child: Center(
+              child: Text(
+                isZh ? '確認' : 'Submit',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        if (_answered)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              '${isZh ? "正確答案：" : "Answer: "}${_current.correctAnswer ?? ""}',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppColors.success,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  void _submitFillBlank() {
+    if (_answered) return;
+    final l = AppLocalizations.of(context)!;
+    final userInput = _fillController.text.trim().toLowerCase();
+    final correct = (_current.correctAnswer ?? '').trim().toLowerCase();
+    final isCorrect = userInput == correct;
+
+    setState(() {
+      _answered = true;
+      _isCorrect = isCorrect;
+      _feedback = isCorrect ? l.quizCorrect : l.quizIncorrect;
+    });
+
+    _onAnswered(
+      isCorrect: isCorrect,
+      userAnswer: userInput,
+      correctAnswer: _current.correctAnswer ?? '',
+    );
+  }
+
+  Widget _buildMinimalPairs(bool isZh, AppLocalizations l) {
+    return Column(
+      children: [
+        if (_current.ttsText != null)
+          ClayButton(
+            color: AppColors.tone2.withValues(alpha: 0.9),
+            onTap: () => _tts.speak(_current.ttsText!),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.volume_up_rounded, color: Colors.white),
+                const SizedBox(width: 8),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AppIcons.svg(AppIcons.speaker, size: 18, color: Colors.white),
+                    const SizedBox(width: 6),
+                    Text(isZh ? '播放發音' : 'Play',
+                        style: const TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        const SizedBox(height: 16),
+        ..._buildOptions(isZh),
+      ],
+    );
   }
 
   List<Widget> _buildOptions(bool isZh) {

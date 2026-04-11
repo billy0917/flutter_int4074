@@ -11,6 +11,7 @@ class QuizQuestion {
   final int? correctTone;
   final String? correctDescription;
   final String? ttsText;
+  final String? correctAnswer;
   final List<String>? optionLabelsZh;
   final List<String>? optionLabelsEn;
 
@@ -25,6 +26,7 @@ class QuizQuestion {
     this.correctTone,
     this.correctDescription,
     this.ttsText,
+    this.correctAnswer,
     this.optionLabelsZh,
     this.optionLabelsEn,
   });
@@ -41,6 +43,7 @@ class QuizQuestion {
       correctTone: json['correct_tone'] as int?,
       correctDescription: json['correct_description'] as String?,
       ttsText: json['tts_text'] as String?,
+      correctAnswer: json['correct_answer'] as String?,
       optionLabelsZh: json['option_labels_zh'] != null
           ? List<String>.from(json['option_labels_zh'] as List)
           : null,

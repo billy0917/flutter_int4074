@@ -141,12 +141,15 @@ class ApiService {
                 {
                   'role': 'system',
                   'content':
-                      'Output only raw JSON array. No markdown, no ```json, no explanation, no extra text. /no_think 只返回純JSON數組，無其他文字。生成5題：draw_tone×1, pick_pinyin×1, listen_pick_char×1, pick_tone×1, match_tone_shape×1。'
+                      'Output only raw JSON array. No markdown, no ```json, no explanation, no extra text. /no_think 只返回純JSON數組，無其他文字。生成6題：draw_tone×1, pick_pinyin×1, fill_blank×1, pick_tone×1, match_tone_shape×1, minimal_pairs×1。'
                       '格式：[{"type":"draw_tone","question_zh":"...","question_en":"...","target_char":"蘋","target_pinyin":"píng","correct_tone":2,"correct_description":"上升線","options":[],"correct_index":0},'
                       '{"type":"pick_pinyin","question_zh":"...","question_en":"...","options":[4個拼音],"correct_index":N},'
-                      '{"type":"listen_pick_char","question_zh":"聽發音選詞","question_en":"Listen and pick","tts_text":"詞語","options":[4個詞],"correct_index":N},'
+                      '{"type":"fill_blank","question_zh":"填寫拼音：___","question_en":"Type the pinyin for: ___","target_char":"蘋","correct_answer":"ping","options":[],"correct_index":0},'
+                      '注意：fill_blank的correct_answer只用英文字母拼音，不含聲調符號（例如用ping而非píng、用mo而非mò）。'
                       '{"type":"pick_tone","question_zh":"...","question_en":"...","options":["第一聲","第二聲","第三聲","第四聲"],"correct_index":N},'
-                      '{"type":"match_tone_shape","question_zh":"...","question_en":"...","options":["flat_high","rising","dipping","falling"],"option_labels_zh":["→ 平線","↗ 上升","↘↗ 先降後升","↘ 下降"],"option_labels_en":["→ Flat","↗ Rising","↘↗ Dipping","↘ Falling"],"correct_index":N}]'
+                      '{"type":"match_tone_shape","question_zh":"...","question_en":"...","options":["flat_high","rising","dipping","falling"],"option_labels_zh":["→ 平","↗ 升","↘↗ 降升","↘ 降"],"option_labels_en":["→ Flat","↗ Rise","↘↗ Dip","↘ Fall"],"correct_index":N},'
+                      '{"type":"minimal_pairs","question_zh":"聽錄音，選出正確的詞語","question_en":"Listen and pick the correct word","tts_text":"正確詞語","options":["lǎoshī","lǎoshǔ"],"correct_index":N}]'
+                      '注意：minimal_pairs要根據輸入詞語自動找出發音相近的近音詞對（如shi/si, zhang/zang），options只寫拼音，不要包含中文字。'
                 },
                 {
                   'role': 'user',
@@ -154,7 +157,7 @@ class ApiService {
                       '${result.objectNameZh}（${result.pinyin}），聲調：$tonesDesc'
                 }
               ],
-              'max_tokens': 800,
+              'max_tokens': 1000,
               'temperature': 0.3,
               'enable_thinking': false,
             }),
