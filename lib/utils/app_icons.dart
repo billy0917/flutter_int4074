@@ -94,6 +94,7 @@ class AppIcons {
   // ── 快捷 Widget（自動判斷 SVG / PNG）──────────────
   static Widget svg(
     String assetPath, {
+    Key? key,
     double size = 24,
     Color? color,
     BoxFit fit = BoxFit.contain,
@@ -101,6 +102,7 @@ class AppIcons {
     if (assetPath.endsWith('.svg')) {
       return SvgPicture.asset(
         assetPath,
+        key: key,
         width: size,
         height: size,
         fit: fit,
@@ -110,6 +112,7 @@ class AppIcons {
     }
     return Image.asset(
       assetPath,
+      key: key,
       width: size,
       height: size,
       fit: fit,

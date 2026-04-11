@@ -72,6 +72,30 @@ class AppLocalizationsZh extends AppLocalizations {
   String get moreFeatures => '更多功能';
 
   @override
+  String get homeStreakLabel => '連續天';
+
+  @override
+  String get homeStarsLabel => '星星';
+
+  @override
+  String get homeLearnedWordsLabel => '已學詞語';
+
+  @override
+  String get homeExampleTitle => '例子';
+
+  @override
+  String get homeDailyVocabTitle => '每日生字';
+
+  @override
+  String get navHome => '首頁';
+
+  @override
+  String get navCamera => '拍照';
+
+  @override
+  String get navHistory => '記錄';
+
+  @override
   String statsWordsLearned(int count) {
     return '已學 $count 個詞';
   }
@@ -272,6 +296,49 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get featurePhrasesSub => '讀法學習';
+
+  @override
+  String get featureMatchingGame => '對對碰';
+
+  @override
+  String get featureMatchingGameSub => '字圖配對';
+
+  @override
+  String get matchingGameTitle => '字圖配對';
+
+  @override
+  String get matchingGameComplete => '🎉 完成啦！';
+
+  @override
+  String matchingGameTime(String time) {
+    return '用時 $time';
+  }
+
+  @override
+  String matchingGameAttemptsSummary(int count) {
+    return '翻了 $count 次';
+  }
+
+  @override
+  String matchingGameEarnedXp(int xp) {
+    return '獲得 $xp 經驗值！';
+  }
+
+  @override
+  String get matchingGamePlayAgain => '🔄 再玩一次';
+
+  @override
+  String get matchingGameBackHome => '🏠 回主頁';
+
+  @override
+  String matchingGameAttemptsChip(int count) {
+    return '翻牌 $count 次';
+  }
+
+  @override
+  String matchingGameMatchedChip(int matched, int total) {
+    return '配對 $matched / $total';
+  }
 
   @override
   String get phraseLearningTitle => '日常用語讀法學習';

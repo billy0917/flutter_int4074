@@ -224,6 +224,54 @@ abstract class AppLocalizations {
   /// **'更多功能'**
   String get moreFeatures;
 
+  /// No description provided for @homeStreakLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'連續天'**
+  String get homeStreakLabel;
+
+  /// No description provided for @homeStarsLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'星星'**
+  String get homeStarsLabel;
+
+  /// No description provided for @homeLearnedWordsLabel.
+  ///
+  /// In zh, this message translates to:
+  /// **'已學詞語'**
+  String get homeLearnedWordsLabel;
+
+  /// No description provided for @homeExampleTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'例子'**
+  String get homeExampleTitle;
+
+  /// No description provided for @homeDailyVocabTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'每日生字'**
+  String get homeDailyVocabTitle;
+
+  /// No description provided for @navHome.
+  ///
+  /// In zh, this message translates to:
+  /// **'首頁'**
+  String get navHome;
+
+  /// No description provided for @navCamera.
+  ///
+  /// In zh, this message translates to:
+  /// **'拍照'**
+  String get navCamera;
+
+  /// No description provided for @navHistory.
+  ///
+  /// In zh, this message translates to:
+  /// **'記錄'**
+  String get navHistory;
+
   /// No description provided for @statsWordsLearned.
   ///
   /// In zh, this message translates to:
@@ -607,6 +655,72 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'讀法學習'**
   String get featurePhrasesSub;
+
+  /// No description provided for @featureMatchingGame.
+  ///
+  /// In zh, this message translates to:
+  /// **'對對碰'**
+  String get featureMatchingGame;
+
+  /// No description provided for @featureMatchingGameSub.
+  ///
+  /// In zh, this message translates to:
+  /// **'字圖配對'**
+  String get featureMatchingGameSub;
+
+  /// No description provided for @matchingGameTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'字圖配對'**
+  String get matchingGameTitle;
+
+  /// No description provided for @matchingGameComplete.
+  ///
+  /// In zh, this message translates to:
+  /// **'🎉 完成啦！'**
+  String get matchingGameComplete;
+
+  /// No description provided for @matchingGameTime.
+  ///
+  /// In zh, this message translates to:
+  /// **'用時 {time}'**
+  String matchingGameTime(String time);
+
+  /// No description provided for @matchingGameAttemptsSummary.
+  ///
+  /// In zh, this message translates to:
+  /// **'翻了 {count} 次'**
+  String matchingGameAttemptsSummary(int count);
+
+  /// No description provided for @matchingGameEarnedXp.
+  ///
+  /// In zh, this message translates to:
+  /// **'獲得 {xp} 經驗值！'**
+  String matchingGameEarnedXp(int xp);
+
+  /// No description provided for @matchingGamePlayAgain.
+  ///
+  /// In zh, this message translates to:
+  /// **'🔄 再玩一次'**
+  String get matchingGamePlayAgain;
+
+  /// No description provided for @matchingGameBackHome.
+  ///
+  /// In zh, this message translates to:
+  /// **'🏠 回主頁'**
+  String get matchingGameBackHome;
+
+  /// No description provided for @matchingGameAttemptsChip.
+  ///
+  /// In zh, this message translates to:
+  /// **'翻牌 {count} 次'**
+  String matchingGameAttemptsChip(int count);
+
+  /// No description provided for @matchingGameMatchedChip.
+  ///
+  /// In zh, this message translates to:
+  /// **'配對 {matched} / {total}'**
+  String matchingGameMatchedChip(int matched, int total);
 
   /// No description provided for @phraseLearningTitle.
   ///

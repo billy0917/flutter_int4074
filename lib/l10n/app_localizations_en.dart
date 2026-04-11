@@ -72,6 +72,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moreFeatures => 'More Features';
 
   @override
+  String get homeStreakLabel => 'Streak';
+
+  @override
+  String get homeStarsLabel => 'Stars';
+
+  @override
+  String get homeLearnedWordsLabel => 'Words';
+
+  @override
+  String get homeExampleTitle => 'Example';
+
+  @override
+  String get homeDailyVocabTitle => 'Daily Words';
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get navCamera => 'Camera';
+
+  @override
+  String get navHistory => 'History';
+
+  @override
   String statsWordsLearned(int count) {
     return 'Learned $count words';
   }
@@ -274,6 +298,49 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get featurePhrasesSub => 'Daily Phrases';
+
+  @override
+  String get featureMatchingGame => 'Match Game';
+
+  @override
+  String get featureMatchingGameSub => 'Word Match';
+
+  @override
+  String get matchingGameTitle => 'Word Match';
+
+  @override
+  String get matchingGameComplete => '🎉 You did it!';
+
+  @override
+  String matchingGameTime(String time) {
+    return 'Time $time';
+  }
+
+  @override
+  String matchingGameAttemptsSummary(int count) {
+    return '$count flips';
+  }
+
+  @override
+  String matchingGameEarnedXp(int xp) {
+    return 'Earned $xp XP!';
+  }
+
+  @override
+  String get matchingGamePlayAgain => '🔄 Play Again';
+
+  @override
+  String get matchingGameBackHome => '🏠 Home';
+
+  @override
+  String matchingGameAttemptsChip(int count) {
+    return 'Flips $count';
+  }
+
+  @override
+  String matchingGameMatchedChip(int matched, int total) {
+    return 'Matched $matched / $total';
+  }
 
   @override
   String get phraseLearningTitle => 'Daily Phrase Learning';

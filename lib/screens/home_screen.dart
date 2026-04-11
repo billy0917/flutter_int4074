@@ -152,11 +152,29 @@ class _HomeScreenState extends State<HomeScreen>
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Expanded(child: _TopStat(icon: AppIcons.fire, value: '$streak', label: '連續天')),
+                            Expanded(
+                              child: _TopStat(
+                                icon: AppIcons.fire,
+                                value: '$streak',
+                                label: l.homeStreakLabel,
+                              ),
+                            ),
                             const SizedBox(width: 4),
-                            Expanded(child: _TopStat(icon: AppIcons.star, value: '$totalStars', label: '星星')),
+                            Expanded(
+                              child: _TopStat(
+                                icon: AppIcons.star,
+                                value: '$totalStars',
+                                label: l.homeStarsLabel,
+                              ),
+                            ),
                             const SizedBox(width: 4),
-                            Expanded(child: _TopStat(icon: AppIcons.book, value: '${history.totalWords}', label: '已學詞語')),
+                            Expanded(
+                              child: _TopStat(
+                                icon: AppIcons.book,
+                                value: '${history.totalWords}',
+                                label: l.homeLearnedWordsLabel,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -195,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen>
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Text(
-                              '例子',
+                              l.homeExampleTitle,
                               style: TextStyle(
                                 fontSize: context.sp(20),
                                 fontWeight: FontWeight.bold,
@@ -310,13 +328,13 @@ class _HomeScreenState extends State<HomeScreen>
                   // 每日生字 label
                   FadeTransition(
                     opacity: _fadeAnimations[0],
-                    child: const Padding(
-                      padding: EdgeInsets.fromLTRB(28, 12, 28, 0),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(28, 12, 28, 0),
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          '每日生字',
-                          style: TextStyle(
+                          l.homeDailyVocabTitle,
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: AppColors.textLight,
@@ -389,7 +407,7 @@ class _HomeScreenState extends State<HomeScreen>
                               iconWidget:
                                   AppIcons.svg(AppIcons.chat, size: context.s(28)),
                               titleZh: '日常用語',
-                              titleEn: 'General word',
+                              titleEn: 'Daily Phrases',
                               onTap: () => Navigator.pushNamed(
                                   context, AppRoutes.phraseCategories),
                             ),
