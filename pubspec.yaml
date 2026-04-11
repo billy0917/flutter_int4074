@@ -20,12 +20,14 @@ dependencies:
   hive_flutter: ^1.1.0
   image_picker: ^1.0.7
   http: ^1.2.0
-  audioplayers: ^6.1.0
+  flutter_tts: ^3.8.5
   record: ^6.2.0
   sherpa_onnx: ^1.10.40
   path_provider: ^2.1.2
   uuid: ^4.3.3
   flutter_svg: ^2.0.10+1
+  audioplayers: ^6.1.0
+  crypto: ^3.0.3
 
 flutter_launcher_icons:
   android: true
@@ -54,9 +56,7 @@ flutter:
     - assets/streaming_zh_model/decoder.onnx
     - assets/streaming_zh_model/joiner.int8.onnx
     - assets/streaming_zh_model/tokens.txt
-    - assets/tts_zh_model/model.onnx
-    - assets/tts_zh_model/lexicon.txt
-    - assets/tts_zh_model/tokens.txt
+    - assets/audio/phrases/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -1,3 +1,6 @@
+// Copy this file to api_config.dart and fill in your API keys.
+// api_config.dart is excluded from version control.
+
 enum ModelPreset {
   fast,
   stable,
@@ -16,19 +19,18 @@ class ModelConfig {
 }
 
 class ApiConfig {
-  static const String baseUrl =
-      'https://api.apiplus.org/v1/chat/completions';
+  static const String baseUrl = 'https://api.apiplus.org/v1/chat/completions';
 
   static const _configs = {
     ModelPreset.fast: ModelConfig(
       label: '快速',
-      apiKey: 'sk-ZoMPnEHOfVrA8OnN2GKJxurZwnYsUogLgKClB7GditENmLNW',
+      apiKey: 'YOUR_FAST_API_KEY',
       model: 'gemini-3.1-flash-lite-preview',
     ),
     ModelPreset.stable: ModelConfig(
       label: '穩定（較慢）',
-      apiKey: 'sk-HaEkbrMfD7eW1blzZNIp0iKaiRixMxNV1lQfrF96HJrSo54C',
-      model: 'qwen3-vl-235b-a22b-instruct',
+      apiKey: 'YOUR_STABLE_API_KEY',
+      model: 'qwen3.5-35b-a3b',
     ),
   };
 
