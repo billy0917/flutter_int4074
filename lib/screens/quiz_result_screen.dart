@@ -5,6 +5,7 @@ import '../widgets/clay_button.dart';
 import '../widgets/clay_card.dart';
 import '../widgets/star_rating.dart';
 import '../utils/constants.dart';
+import '../utils/responsive.dart';
 import 'package:flutter_app/l10n/app_localizations.dart';
 
 class QuizResultScreen extends StatelessWidget {
@@ -47,8 +48,8 @@ class QuizResultScreen extends StatelessWidget {
               // Title
               Text(
                 l.quizResultTitle,
-                style: const TextStyle(
-                  fontSize: 28,
+                style: TextStyle(
+                  fontSize: context.sp(28),
                   fontWeight: FontWeight.bold,
                   color: AppColors.textDark,
                 ),
@@ -69,8 +70,8 @@ class QuizResultScreen extends StatelessWidget {
                   children: [
                     Text(
                       l.quizResultScore(correct, total),
-                      style: const TextStyle(
-                        fontSize: 22,
+                      style: TextStyle(
+                        fontSize: context.sp(22),
                         fontWeight: FontWeight.bold,
                         color: AppColors.textDark,
                       ),

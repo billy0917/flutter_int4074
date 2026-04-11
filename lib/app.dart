@@ -38,6 +38,19 @@ class PinPinGoApp extends StatelessWidget {
             ],
             onGenerateRoute: AppRoutes.generateRoute,
             initialRoute: AppRoutes.splash,
+            // Prevent system text-scaling from blowing up the layout
+            builder: (context, child) {
+              final mq = MediaQuery.of(context);
+              return MediaQuery(
+                data: mq.copyWith(
+                  textScaler: mq.textScaler.clamp(
+                    minScaleFactor: 0.8,
+                    maxScaleFactor: 1.0,
+                  ),
+                ),
+                child: child!,
+              );
+            },
           );
         },
       ),

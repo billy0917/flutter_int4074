@@ -12,6 +12,7 @@ import '../services/sense_voice_service.dart';
 import '../services/storage_service.dart';
 import '../utils/constants.dart';
 import '../utils/app_icons.dart';
+import '../utils/responsive.dart';
 import 'package:flutter_app/l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -134,8 +135,8 @@ class _HomeScreenState extends State<HomeScreen>
                   child: Row(
                     children: [
                       Container(
-                        width: 48,
-                        height: 48,
+                        width: context.s(48),
+                        height: context.s(48),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.4),
                           borderRadius: BorderRadius.circular(14),
@@ -143,7 +144,7 @@ class _HomeScreenState extends State<HomeScreen>
                         alignment: Alignment.center,
                         child: AppIcons.svg(
                           AppIcons.levelIcon(level.level),
-                          size: 34,
+                          size: context.s(34),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -163,15 +164,15 @@ class _HomeScreenState extends State<HomeScreen>
                       GestureDetector(
                         onTap: () => Navigator.pushNamed(context, AppRoutes.settings),
                         child: Container(
-                          width: 48,
-                          height: 48,
+                          width: context.s(48),
+                          height: context.s(48),
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.3),
                             borderRadius: BorderRadius.circular(14),
                           ),
                           alignment: Alignment.center,
-                          child: const Icon(Icons.settings_rounded,
-                              color: Colors.white, size: 26),
+                          child: Icon(Icons.settings_rounded,
+                              color: Colors.white, size: context.s(26)),
                         ),
                       ),
                     ],
@@ -191,12 +192,12 @@ class _HomeScreenState extends State<HomeScreen>
                               color: Colors.white.withValues(alpha: 0.4),
                             ),
                           ),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Text(
                               '例子',
                               style: TextStyle(
-                                fontSize: 20,
+                                fontSize: context.sp(20),
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
@@ -219,15 +220,15 @@ class _HomeScreenState extends State<HomeScreen>
                               curve: Curves.easeInOut,
                             ),
                             child: Container(
-                              width: 40,
-                              height: 40,
+                              width: context.s(40),
+                              height: context.s(40),
                               decoration: BoxDecoration(
                                 color: Colors.white.withValues(alpha: 0.3),
                                 shape: BoxShape.circle,
                               ),
                               alignment: Alignment.center,
-                              child: const Icon(Icons.arrow_back_rounded,
-                                  color: Colors.white, size: 24),
+                              child: Icon(Icons.arrow_back_rounded,
+                                  color: Colors.white, size: context.s(24)),
                             ),
                           ),
                           Expanded(
@@ -241,8 +242,8 @@ class _HomeScreenState extends State<HomeScreen>
                                     textAlign: TextAlign.center,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontSize: 18,
+                                    style: TextStyle(
+                                      fontSize: context.sp(18),
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
                                     ),
@@ -280,15 +281,15 @@ class _HomeScreenState extends State<HomeScreen>
                               curve: Curves.easeInOut,
                             ),
                             child: Container(
-                              width: 40,
-                              height: 40,
+                              width: context.s(40),
+                              height: context.s(40),
                               decoration: BoxDecoration(
                                 color: Colors.white.withValues(alpha: 0.3),
                                 shape: BoxShape.circle,
                               ),
                               alignment: Alignment.center,
-                              child: const Icon(Icons.arrow_forward_rounded,
-                                  color: Colors.white, size: 24),
+                              child: Icon(Icons.arrow_forward_rounded,
+                                  color: Colors.white, size: context.s(24)),
                             ),
                           ),
                         ],
@@ -380,24 +381,24 @@ class _HomeScreenState extends State<HomeScreen>
                   FadeTransition(
                     opacity: _fadeAnimations[2],
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                       child: Row(
                         children: [
                           Expanded(
                             child: _FeatureButton(
                               iconWidget:
-                                  AppIcons.svg(AppIcons.chat, size: 30),
+                                  AppIcons.svg(AppIcons.chat, size: context.s(28)),
                               titleZh: '日常用語',
                               titleEn: 'General word',
                               onTap: () => Navigator.pushNamed(
                                   context, AppRoutes.phraseCategories),
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: _FeatureButton(
                               iconWidget:
-                                  AppIcons.svg(AppIcons.scroll, size: 30),
+                                  AppIcons.svg(AppIcons.scroll, size: context.s(28)),
                               titleZh: '歷史記錄',
                               titleEn: 'History',
                               onTap: () => Navigator.pushNamed(
@@ -413,23 +414,26 @@ class _HomeScreenState extends State<HomeScreen>
                   FadeTransition(
                     opacity: _fadeAnimations[2],
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
+                      padding: const EdgeInsets.fromLTRB(24, 4, 24, 12),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text(
-                            _greeting(l),
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.textDark,
+                          Flexible(
+                            child: Text(
+                              _greeting(l),
+                              style: TextStyle(
+                                fontSize: context.sp(20),
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textDark,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const Spacer(),
+                          const SizedBox(width: 8),
                           Text(
                             '${level.titleZh} LV.${level.level}  $xp/${nextXp}XP',
                             style: const TextStyle(
-                              fontSize: 14,
+                              fontSize: 13,
                               color: AppColors.textMedium,
                             ),
                           ),
@@ -525,8 +529,8 @@ class _VocabCard extends StatelessWidget {
         children: [
           Text(
             vocab.pinyin,
-            style: const TextStyle(
-              fontSize: 28,
+            style: TextStyle(
+              fontSize: context.sp(28),
               color: AppColors.textMedium,
               fontWeight: FontWeight.w500,
             ),
@@ -535,8 +539,8 @@ class _VocabCard extends StatelessWidget {
           FittedBox(
             child: Text(
               vocab.chinese,
-              style: const TextStyle(
-                fontSize: 56,
+              style: TextStyle(
+                fontSize: context.sp(56),
                 fontWeight: FontWeight.bold,
                 color: AppColors.textDark,
               ),
@@ -548,8 +552,8 @@ class _VocabCard extends StatelessWidget {
           FittedBox(
             child: Text(
               vocab.english,
-              style: const TextStyle(
-                fontSize: 24,
+              style: TextStyle(
+                fontSize: context.sp(24),
                 fontWeight: FontWeight.bold,
                 color: AppColors.primary,
               ),
@@ -562,35 +566,45 @@ class _VocabCard extends StatelessWidget {
 
   Widget _buildVisual() {
     if (vocab.imagePath.isNotEmpty) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        clipBehavior: Clip.hardEdge,
-        child: Image.asset(
-          vocab.imagePath,
-          width: 90,
-          height: 90,
-          fit: BoxFit.cover,
-          filterQuality: FilterQuality.low,
-          errorBuilder: (_, __, ___) => _fallbackVisual(),
-        ),
+      return LayoutBuilder(
+        builder: (context, _) {
+          final sz = context.s(90);
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            clipBehavior: Clip.hardEdge,
+            child: Image.asset(
+              vocab.imagePath,
+              width: sz,
+              height: sz,
+              fit: BoxFit.cover,
+              filterQuality: FilterQuality.low,
+              errorBuilder: (_, __, ___) => _fallbackVisual(),
+            ),
+          );
+        },
       );
     }
     return _fallbackVisual();
   }
 
   Widget _fallbackVisual() {
-    return Container(
-      width: 90, // Slightly reduced
-      height: 90,
-      decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        vocab.chinese.isNotEmpty ? vocab.chinese.substring(0, 1) : '?',
-        style: const TextStyle(fontSize: 48, color: AppColors.primary),
-      ),
+    return LayoutBuilder(
+      builder: (context, _) {
+        final sz = context.s(90);
+        return Container(
+          width: sz,
+          height: sz,
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            vocab.chinese.isNotEmpty ? vocab.chinese.substring(0, 1) : '?',
+            style: TextStyle(fontSize: context.sp(48), color: AppColors.primary),
+          ),
+        );
+      },
     );
   }
 }
@@ -614,32 +628,34 @@ class _FeatureButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
-        decoration: clayDecoration(color: AppColors.cardBg, radius: 24),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
+        decoration: clayDecoration(color: AppColors.cardBg, radius: 22),
         child: Row(
           children: [
             Container(
-              width: 56,
-              height: 56,
+              width: context.s(50),
+              height: context.s(50),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.6),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(14),
               ),
               alignment: Alignment.center,
               child: iconWidget,
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     titleZh,
-                    style: const TextStyle(
-                      fontSize: 18,
+                    style: TextStyle(
+                      fontSize: context.sp(17),
                       fontWeight: FontWeight.bold,
                       color: AppColors.textDark,
                     ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -648,6 +664,7 @@ class _FeatureButton extends StatelessWidget {
                       fontSize: 12,
                       color: AppColors.textMedium,
                     ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),

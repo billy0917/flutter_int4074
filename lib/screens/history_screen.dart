@@ -11,6 +11,7 @@ import '../widgets/clay_text_field.dart';
 import '../utils/constants.dart';
 import '../utils/date_formatter.dart';
 import '../utils/app_icons.dart';
+import '../utils/responsive.dart';
 import 'package:flutter_app/l10n/app_localizations.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -204,8 +205,8 @@ class _HistoryItem extends StatelessWidget {
             children: [
               // Word icon
               Container(
-                width: 52,
-                height: 52,
+                width: context.s(52),
+                height: context.s(52),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
@@ -216,8 +217,8 @@ class _HistoryItem extends StatelessWidget {
                           File(record.imagePath).existsSync()
                       ? Image.file(
                           File(record.imagePath),
-                          width: 52,
-                          height: 52,
+                          width: context.s(52),
+                          height: context.s(52),
                           fit: BoxFit.cover,
                         )
                       : Center(
@@ -240,8 +241,8 @@ class _HistoryItem extends StatelessWidget {
                       children: [
                         Text(
                           record.objectNameZh,
-                          style: const TextStyle(
-                            fontSize: 18,
+                          style: TextStyle(
+                            fontSize: context.sp(18),
                             fontWeight: FontWeight.bold,
                             color: AppColors.textDark,
                           ),

@@ -9,6 +9,7 @@ import '../widgets/clay_card.dart';
 import '../widgets/clay_button.dart';
 import '../utils/constants.dart';
 import '../utils/app_icons.dart';
+import '../utils/responsive.dart';
 import 'package:flutter_app/l10n/app_localizations.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -86,7 +87,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   Row(
                     children: [
-                      AppIcons.svg(AppIcons.globe, size: 22),
+                      AppIcons.svg(AppIcons.globe, size: context.s(22)),
                       const SizedBox(width: 8),
                       Text(
                         l.settingsLanguage,
@@ -159,7 +160,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   Row(
                     children: [
-                      AppIcons.svg(AppIcons.speaker, size: 22),
+                      AppIcons.svg(AppIcons.speaker, size: context.s(22)),
                       const SizedBox(width: 8),
                       Text(
                         l.settingsTtsSpeed,
@@ -213,7 +214,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   Row(
                     children: [
-                      AppIcons.svg(AppIcons.trash, size: 22),
+                      AppIcons.svg(AppIcons.trash, size: context.s(22)),
                       const SizedBox(width: 8),
                       Text(
                         l.settingsClearHistory,
@@ -254,7 +255,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   Row(
                     children: [
-                      AppIcons.svg(AppIcons.info, size: 22),
+                      AppIcons.svg(AppIcons.info, size: context.s(22)),
                       const SizedBox(width: 8),
                       Text(
                         l.settingsAbout,

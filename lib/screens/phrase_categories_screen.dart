@@ -8,6 +8,7 @@ import '../services/storage_service.dart';
 import '../widgets/clay_card.dart';
 import '../utils/constants.dart';
 import '../utils/app_icons.dart';
+import '../utils/responsive.dart';
 import 'package:flutter_app/l10n/app_localizations.dart';
 
 class PhraseCategoriesScreen extends StatefulWidget {
@@ -120,14 +121,14 @@ class _CategoryTile extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 56,
-            height: 56,
+            width: context.s(56),
+            height: context.s(56),
             decoration: BoxDecoration(
               color: AppColors.primary.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(16),
             ),
             alignment: Alignment.center,
-            child: AppIcons.svg(category.iconPath, size: 28),
+            child: AppIcons.svg(category.iconPath, size: context.s(28)),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -136,8 +137,8 @@ class _CategoryTile extends StatelessWidget {
               children: [
                 Text(
                   name,
-                  style: const TextStyle(
-                    fontSize: 17,
+                  style: TextStyle(
+                    fontSize: context.sp(17),
                     fontWeight: FontWeight.bold,
                     color: AppColors.textDark,
                   ),
@@ -200,14 +201,14 @@ class _PlayerProfileCard extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 52,
-              height: 52,
+              width: context.s(52),
+              height: context.s(52),
               decoration: BoxDecoration(
                 color: AppColors.primary.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(14),
               ),
               alignment: Alignment.center,
-              child: AppIcons.svg(AppIcons.levelIcon(level.level), size: 30),
+              child: AppIcons.svg(AppIcons.levelIcon(level.level), size: context.s(30)),
             ),
             const SizedBox(width: 12),
             Expanded(
