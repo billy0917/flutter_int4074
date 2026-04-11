@@ -34,7 +34,7 @@ class TtsService {
   bool _isInitializing = false;
   Completer<bool>? _initCompleter;
   double _speechRate = 1.0; // sherpa speed (1.0 = normal)
-  final int _speakerId = 0;
+  final int _speakerId = 66; // Speaker ID
 
   bool get isModelReady => _isModelReady;
   bool get isInitializing => _isInitializing;
@@ -142,7 +142,7 @@ class TtsService {
 
     final modelConfig = sherpa.OfflineTtsModelConfig(
       vits: vitsConfig,
-      numThreads: 2,
+      numThreads: 3,
       debug: false,
     );
 
