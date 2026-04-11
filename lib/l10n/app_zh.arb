@@ -21,6 +21,14 @@
   "comingSoonMsg": "此功能即將推出，敬請期待！",
   "recentLearned": "最近學過",
   "moreFeatures": "更多功能",
+  "homeStreakLabel": "連續天",
+  "homeStarsLabel": "星星",
+  "homeLearnedWordsLabel": "已學詞語",
+  "homeExampleTitle": "例子",
+  "homeDailyVocabTitle": "每日生字",
+  "navHome": "首頁",
+  "navCamera": "拍照",
+  "navHistory": "記錄",
   "statsWordsLearned": "已學 {count} 個詞",
   "@statsWordsLearned": {
     "placeholders": {
@@ -112,6 +120,43 @@
   "todayStats": "今日學習統計",
   "featurePhrases": "日常用語",
   "featurePhrasesSub": "讀法學習",
+  "featureMatchingGame": "對對碰",
+  "featureMatchingGameSub": "字圖配對",
+  "matchingGameTitle": "字圖配對",
+  "matchingGameComplete": "🎉 完成啦！",
+  "matchingGameTime": "用時 {time}",
+  "@matchingGameTime": {
+    "placeholders": {
+      "time": {"type": "String"}
+    }
+  },
+  "matchingGameAttemptsSummary": "翻了 {count} 次",
+  "@matchingGameAttemptsSummary": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "matchingGameEarnedXp": "獲得 {xp} 經驗值！",
+  "@matchingGameEarnedXp": {
+    "placeholders": {
+      "xp": {"type": "int"}
+    }
+  },
+  "matchingGamePlayAgain": "🔄 再玩一次",
+  "matchingGameBackHome": "🏠 回主頁",
+  "matchingGameAttemptsChip": "翻牌 {count} 次",
+  "@matchingGameAttemptsChip": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "matchingGameMatchedChip": "配對 {matched} / {total}",
+  "@matchingGameMatchedChip": {
+    "placeholders": {
+      "matched": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
   "phraseLearningTitle": "日常用語讀法學習",
   "phraseCategoryCount": "{count} 個詞語",
   "@phraseCategoryCount": {

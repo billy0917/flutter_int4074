@@ -21,6 +21,14 @@
   "comingSoonMsg": "This feature is coming soon, stay tuned!",
   "recentLearned": "Recently Learned",
   "moreFeatures": "More Features",
+  "homeStreakLabel": "Streak",
+  "homeStarsLabel": "Stars",
+  "homeLearnedWordsLabel": "Words",
+  "homeExampleTitle": "Example",
+  "homeDailyVocabTitle": "Daily Words",
+  "navHome": "Home",
+  "navCamera": "Camera",
+  "navHistory": "History",
   "statsWordsLearned": "Learned {count} words",
   "@statsWordsLearned": {
     "placeholders": {
@@ -112,6 +120,43 @@
   "todayStats": "Today's Stats",
   "featurePhrases": "Phrases",
   "featurePhrasesSub": "Daily Phrases",
+  "featureMatchingGame": "Match Game",
+  "featureMatchingGameSub": "Word Match",
+  "matchingGameTitle": "Word Match",
+  "matchingGameComplete": "🎉 You did it!",
+  "matchingGameTime": "Time {time}",
+  "@matchingGameTime": {
+    "placeholders": {
+      "time": {"type": "String"}
+    }
+  },
+  "matchingGameAttemptsSummary": "{count} flips",
+  "@matchingGameAttemptsSummary": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "matchingGameEarnedXp": "Earned {xp} XP!",
+  "@matchingGameEarnedXp": {
+    "placeholders": {
+      "xp": {"type": "int"}
+    }
+  },
+  "matchingGamePlayAgain": "🔄 Play Again",
+  "matchingGameBackHome": "🏠 Home",
+  "matchingGameAttemptsChip": "Flips {count}",
+  "@matchingGameAttemptsChip": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "matchingGameMatchedChip": "Matched {matched} / {total}",
+  "@matchingGameMatchedChip": {
+    "placeholders": {
+      "matched": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
   "phraseLearningTitle": "Daily Phrase Learning",
   "phraseCategoryCount": "{count} phrases",
   "@phraseCategoryCount": {

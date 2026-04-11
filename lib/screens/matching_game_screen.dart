@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_app/l10n/app_localizations.dart';
 import '../config/theme.dart';
 import '../models/vocabulary_item.dart';
 import '../services/storage_service.dart';
@@ -165,6 +166,7 @@ class _MatchingGameScreenState extends State<MatchingGameScreen>
   }
 
   void _showResultDialog() async {
+    final l = AppLocalizations.of(context)!;
     final seconds = _stopwatch.elapsed.inSeconds;
     final minutes = seconds ~/ 60;
     final secs = seconds % 60;
@@ -194,8 +196,8 @@ class _MatchingGameScreenState extends State<MatchingGameScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                '🎉 完成啦！',
+              Text(
+                l.matchingGameComplete,
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
@@ -219,7 +221,7 @@ class _MatchingGameScreenState extends State<MatchingGameScreen>
               ),
               const SizedBox(height: 20),
               Text(
-                '用時 $timeStr',
+                l.matchingGameTime(timeStr),
                 style: const TextStyle(
                   fontSize: 18,
                   color: AppColors.textMedium,
@@ -227,7 +229,7 @@ class _MatchingGameScreenState extends State<MatchingGameScreen>
               ),
               const SizedBox(height: 8),
               Text(
-                '翻了 $_attempts 次',
+                l.matchingGameAttemptsSummary(_attempts),
                 style: const TextStyle(
                   fontSize: 18,
                   color: AppColors.textMedium,
@@ -235,7 +237,7 @@ class _MatchingGameScreenState extends State<MatchingGameScreen>
               ),
               const SizedBox(height: 8),
               Text(
-                '獲得 $_earnedXp 經驗值！',
+                l.matchingGameEarnedXp(_earnedXp),
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -247,7 +249,7 @@ class _MatchingGameScreenState extends State<MatchingGameScreen>
                 children: [
                   Expanded(
                     child: _DialogButton(
-                      label: '🔄 再玩一次',
+                      label: l.matchingGamePlayAgain,
                       color: AppColors.primary,
                       onTap: () {
                         Navigator.pop(ctx);
@@ -258,7 +260,7 @@ class _MatchingGameScreenState extends State<MatchingGameScreen>
                   const SizedBox(width: 12),
                   Expanded(
                     child: _DialogButton(
-                      label: '🏠 回主頁',
+                      label: l.matchingGameBackHome,
                       color: AppColors.success,
                       onTap: () {
                         Navigator.pop(ctx);
@@ -286,6 +288,7 @@ class _MatchingGameScreenState extends State<MatchingGameScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -305,7 +308,7 @@ class _MatchingGameScreenState extends State<MatchingGameScreen>
                     ),
                     Expanded(
                       child: Text(
-                        '字圖配對',
+                        l.matchingGameTitle,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: context.sp(20),
@@ -329,11 +332,14 @@ class _MatchingGameScreenState extends State<MatchingGameScreen>
                 children: [
                   _StatusChip(
                     icon: Icons.touch_app_rounded,
-                    text: '翻牌 $_attempts 次',
+                    text: l.matchingGameAttemptsChip(_attempts),
                   ),
                   _StatusChip(
                     icon: Icons.check_circle_outline_rounded,
-                    text: '配對 $_matchedPairs / ${widget.pairCount}',
+                    text: l.matchingGameMatchedChip(
+                      _matchedPairs,
+                      widget.pairCount,
+                    ),
                   ),
                 ],
               ),
