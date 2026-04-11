@@ -8,6 +8,7 @@ import '../services/storage_service.dart';
 import '../widgets/clay_card.dart';
 import '../utils/constants.dart';
 import '../utils/app_icons.dart';
+import '../utils/responsive.dart';
 
 /// Shows the user's phrase practice history grouped by category, with
 /// per-phrase best score, attempt count, and last practice time.
@@ -296,8 +297,8 @@ class _PhraseRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               child: Image.asset(
                 record.phrase.imagePath,
-                width: 36,
-                height: 36,
+                width: context.s(36),
+                height: context.s(36),
                 fit: BoxFit.cover,
               ),
             ),
@@ -309,8 +310,8 @@ class _PhraseRow extends StatelessWidget {
               children: [
                 Text(
                   record.phrase.chinese,
-                  style: const TextStyle(
-                    fontSize: 16,
+                  style: TextStyle(
+                    fontSize: context.sp(16),
                     fontWeight: FontWeight.w600,
                     color: AppColors.textDark,
                   ),

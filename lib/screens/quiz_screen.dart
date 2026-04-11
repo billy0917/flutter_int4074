@@ -18,6 +18,7 @@ import '../utils/app_icons.dart';
 import '../widgets/tone_painter.dart';
 import '../widgets/loading_animation.dart';
 import '../utils/constants.dart';
+import '../utils/responsive.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app/l10n/app_localizations.dart';
 
@@ -310,8 +311,8 @@ class _QuizScreenState extends State<QuizScreen>
                     children: [
                       Text(
                         isZh ? _current.questionZh : _current.questionEn,
-                        style: const TextStyle(
-                          fontSize: 18,
+                        style: TextStyle(
+                          fontSize: context.sp(18),
                           fontWeight: FontWeight.bold,
                           color: AppColors.textDark,
                         ),
@@ -450,10 +451,11 @@ class _QuizScreenState extends State<QuizScreen>
         const SizedBox(height: 12),
         LayoutBuilder(
           builder: (ctx, constraints) {
-            _canvasSize = Size(constraints.maxWidth, 180);
+            final canvasH = context.s(180);
+            _canvasSize = Size(constraints.maxWidth, canvasH);
             return ToneDrawingCanvas(
               key: _canvasKey,
-              height: 180,
+              height: canvasH,
               onStrokeChanged: (pts) =>
                   setState(() => _strokePoints = pts),
             );

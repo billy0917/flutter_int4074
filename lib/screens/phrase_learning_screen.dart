@@ -10,6 +10,7 @@ import '../services/storage_service.dart';
 import '../config/game_config.dart';
 import '../utils/app_icons.dart';
 import '../utils/chinese_convert.dart';
+import '../utils/responsive.dart';
 import '../widgets/clay_button.dart';
 import '../widgets/clay_card.dart';
 import 'package:flutter_app/l10n/app_localizations.dart';
@@ -702,8 +703,8 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
             borderRadius: BorderRadius.circular(16),
             child: Image.asset(
               _current.imagePath,
-              width: 100,
-              height: 100,
+              width: context.s(100),
+              height: context.s(100),
               fit: BoxFit.cover,
               gaplessPlayback: true,
             ),
@@ -712,20 +713,23 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
           // Pinyin
           Text(
             _current.pinyin,
-            style: const TextStyle(
-              fontSize: 20,
+            style: TextStyle(
+              fontSize: context.sp(20),
               color: AppColors.textMedium,
               letterSpacing: 1.2,
             ),
           ),
           const SizedBox(height: 12),
           // Chinese characters
-          Text(
-            _current.chinese,
-            style: const TextStyle(
-              fontSize: 48,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textDark,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              _current.chinese,
+              style: TextStyle(
+                fontSize: context.sp(48),
+                fontWeight: FontWeight.bold,
+                color: AppColors.textDark,
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -738,8 +742,8 @@ class _PhraseLearningScreenState extends State<PhraseLearningScreen>
               duration: const Duration(milliseconds: 250),
               child: Text(
                 _current.english,
-                style: const TextStyle(
-                  fontSize: 18,
+                style: TextStyle(
+                  fontSize: context.sp(18),
                   color: AppColors.tone2,
                   fontWeight: FontWeight.w500,
                 ),
@@ -882,8 +886,8 @@ class _CircleAction extends StatelessWidget {
         GestureDetector(
           onTap: onTap,
           child: Container(
-            width: 64,
-            height: 64,
+            width: context.s(64),
+            height: context.s(64),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.15),
               shape: BoxShape.circle,
@@ -895,7 +899,7 @@ class _CircleAction extends StatelessWidget {
                 ),
               ],
             ),
-            child: Icon(icon, color: color, size: 30),
+            child: Icon(icon, color: color, size: context.s(30)),
           ),
         ),
         const SizedBox(height: 6),
@@ -931,8 +935,8 @@ class _MicButton extends StatelessWidget {
           onTap: onTap,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            width: 72,
-            height: 72,
+            width: context.s(72),
+            height: context.s(72),
             decoration: BoxDecoration(
               color: bgColor.withValues(alpha: isListening ? 0.9 : 0.85),
               shape: BoxShape.circle,
@@ -954,7 +958,7 @@ class _MicButton extends StatelessWidget {
             child: Icon(
               isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
               color: Colors.white,
-              size: 36,
+              size: context.s(36),
             ),
           ),
         ),

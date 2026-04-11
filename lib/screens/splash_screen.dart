@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../config/theme.dart';
 import '../config/routes.dart';
 import '../utils/app_icons.dart';
+import '../utils/responsive.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -75,23 +76,23 @@ class _SplashScreenState extends State<SplashScreen>
                     ],
                   ),
                   child: Center(
-                    child: AppIcons.svg(AppIcons.music, size: 56),
+                    child: AppIcons.svg(AppIcons.music, size: context.s(56)),
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text(
+                Text(
                   '拼拼樂',
                   style: TextStyle(
-                    fontSize: 36,
+                    fontSize: context.sp(36),
                     fontWeight: FontWeight.bold,
                     color: AppColors.textDark,
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'PinPin Go',
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: context.sp(18),
                     color: AppColors.textMedium,
                     letterSpacing: 2,
                   ),

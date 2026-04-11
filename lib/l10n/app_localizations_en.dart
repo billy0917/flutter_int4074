@@ -131,13 +131,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resultExample => 'Example';
 
   @override
-  String get resultListen => '🔊 Listen';
+  String get resultListen => 'Listen';
 
   @override
-  String get resultStartQuiz => '📝 Start Quiz';
+  String get resultStartQuiz => 'Start Quiz';
 
   @override
-  String get resultRetake => '📷 Take Another';
+  String get resultRetake => 'Take Another';
 
   @override
   String get quizTitle => 'Quiz';

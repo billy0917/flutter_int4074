@@ -335,19 +335,19 @@ abstract class AppLocalizations {
   /// No description provided for @resultListen.
   ///
   /// In zh, this message translates to:
-  /// **'🔊 聽發音'**
+  /// **'聽發音'**
   String get resultListen;
 
   /// No description provided for @resultStartQuiz.
   ///
   /// In zh, this message translates to:
-  /// **'📝 開始測驗'**
+  /// **'開始測驗'**
   String get resultStartQuiz;
 
   /// No description provided for @resultRetake.
   ///
   /// In zh, this message translates to:
-  /// **'📷 再拍一張'**
+  /// **'再拍一張'**
   String get resultRetake;
 
   /// No description provided for @quizTitle.

@@ -49,9 +49,9 @@
   "resultEnglish": "英文",
   "resultCantonese": "粵語對照",
   "resultExample": "例句",
-  "resultListen": "🔊 聽發音",
-  "resultStartQuiz": "📝 開始測驗",
-  "resultRetake": "📷 再拍一張",
+  "resultListen": "聽發音",
+  "resultStartQuiz": "開始測驗",
+  "resultRetake": "再拍一張",
   "quizTitle": "小測驗",
   "quizQuestionOf": "第 {current} 題 / 共 {total} 題",
   "@quizQuestionOf": {

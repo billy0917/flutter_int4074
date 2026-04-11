@@ -19,6 +19,7 @@ import '../widgets/loading_animation.dart';
 import '../widgets/info_row.dart';
 import '../utils/constants.dart';
 import '../utils/date_formatter.dart';
+import '../utils/responsive.dart';
 import 'package:flutter_app/l10n/app_localizations.dart';
 import '../config/api_config.dart';
 
@@ -182,16 +183,16 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
                         children: [
                           Text(
                             rec.objectNameZh,
-                            style: const TextStyle(
-                              fontSize: 48,
+                            style: TextStyle(
+                              fontSize: context.sp(48),
                               fontWeight: FontWeight.bold,
                               color: AppColors.textDark,
                             ),
                           ),
                           Text(
                             rec.pinyin,
-                            style: const TextStyle(
-                              fontSize: 28,
+                            style: TextStyle(
+                              fontSize: context.sp(28),
                               color: AppColors.primary,
                               fontWeight: FontWeight.w500,
                             ),
@@ -210,8 +211,8 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
                                   children: [
                                     Text(
                                       c.char,
-                                      style: const TextStyle(
-                                        fontSize: 22,
+                                      style: TextStyle(
+                                        fontSize: context.sp(22),
                                         fontWeight: FontWeight.bold,
                                         color: AppColors.textDark,
                                       ),

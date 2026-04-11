@@ -17,6 +17,7 @@ import '../widgets/loading_animation.dart';
 import '../utils/app_icons.dart';
 import '../widgets/info_row.dart';
 import '../utils/constants.dart';
+import '../utils/responsive.dart';
 import 'package:flutter_app/l10n/app_localizations.dart';
 
 class ResultScreen extends StatefulWidget {
@@ -135,8 +136,8 @@ class _ResultScreenState extends State<ResultScreen> {
                         children: [
                           Text(
                             r.objectNameZh,
-                            style: const TextStyle(
-                              fontSize: 48,
+                            style: TextStyle(
+                              fontSize: context.sp(48),
                               fontWeight: FontWeight.bold,
                               color: AppColors.textDark,
                             ),
@@ -144,8 +145,8 @@ class _ResultScreenState extends State<ResultScreen> {
                           const SizedBox(height: 4),
                           Text(
                             r.pinyin,
-                            style: const TextStyle(
-                              fontSize: 28,
+                            style: TextStyle(
+                              fontSize: context.sp(28),
                               color: AppColors.primary,
                               fontWeight: FontWeight.w500,
                             ),
@@ -173,8 +174,8 @@ class _ResultScreenState extends State<ResultScreen> {
                                   children: [
                                     Text(
                                       c.char,
-                                      style: const TextStyle(
-                                        fontSize: 22,
+                                      style: TextStyle(
+                                        fontSize: context.sp(22),
                                         fontWeight: FontWeight.bold,
                                         color: AppColors.textDark,
                                       ),
