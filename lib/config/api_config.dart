@@ -22,13 +22,13 @@ class ApiConfig {
   static const _configs = {
     ModelPreset.fast: ModelConfig(
       label: '快速',
-      apiKey: 'sk-ZoMPnEHOfVrA8OnN2GKJxurZwnYsUogLgKClB7GditENmLNW',
-      model: 'gemini-3.1-flash-lite-preview',
+      apiKey: 'your api key',
+      model: 'your api',
     ),
     ModelPreset.stable: ModelConfig(
       label: '穩定（較慢）',
-      apiKey: 'sk-ZoMPnEHOfVrA8OnN2GKJxurZwnYsUogLgKClB7GditENmLNW',
-      model: 'qwen3-vl-235b-a22b-instruct',
+      apiKey: 'your api key',
+      model: 'your api',
     ),
   };
 
