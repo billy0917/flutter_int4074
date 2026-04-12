@@ -1,8 +1,10 @@
 ﻿import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:image/image.dart' as img;
 import '../config/api_config.dart';
 import '../models/recognition_result.dart';
 import '../models/quiz_question.dart';
@@ -37,9 +39,10 @@ class ApiService {
   }) async {
     final config = ApiConfig.getConfig(preset);
     try {
-      final bytes = await imageFile.readAsBytes();
-      final base64Image = base64Encode(bytes);
-      debugPrint('[API] Sending image (${(bytes.length / 1024).toStringAsFixed(1)} KB) to ${ApiConfig.baseUrl} model=${config.model}');
+      final rawBytes = await imageFile.readAsBytes();
+      final compressedBytes = await _compressImage(rawBytes, maxSide: 1024, quality: 75);
+      final base64Image = base64Encode(compressedBytes);
+      debugPrint('[API] Image: ${(rawBytes.length / 1024).toStringAsFixed(1)} KB → ${(compressedBytes.length / 1024).toStringAsFixed(1)} KB compressed');
 
       final response = await http
           .post(
@@ -142,6 +145,7 @@ class ApiService {
                   'role': 'system',
                   'content':
                       'Output only raw JSON array. No markdown, no ```json, no explanation, no extra text. /no_think 只返回純JSON數組，無其他文字。生成6題：draw_tone×1, pick_pinyin×1, fill_blank×1, pick_tone×1, match_tone_shape×1, minimal_pairs×1。'
+                      '重要：draw_tone、pick_pinyin、fill_blank、match_tone_shape這4種題型只能針對單個漢字出題（例如「蘋」而非「蘋果」），從輸入詞語中選一個字。'
                       '格式：[{"type":"draw_tone","question_zh":"...","question_en":"...","target_char":"蘋","target_pinyin":"píng","correct_tone":2,"correct_description":"上升線","options":[],"correct_index":0},'
                       '{"type":"pick_pinyin","question_zh":"...","question_en":"...","options":[4個拼音],"correct_index":N},'
                       '{"type":"fill_blank","question_zh":"填寫拼音：___","question_en":"Type the pinyin for: ___","target_char":"蘋","correct_answer":"ping","options":[],"correct_index":0},'
@@ -238,5 +242,39 @@ class ApiService {
   /// Strip Qwen3 <think>...</think> reasoning tokens from response.
   static String _stripThinkTags(String text) {
     return text.replaceAll(RegExp(r'<think>[\s\S]*?</think>'), '').trim();
+  }
+
+  /// Compress and resize image before sending to API.
+  /// - Limits longest side to [maxSide] pixels (proportional).
+  /// - Re-encodes as JPEG at [quality]% (0–100).
+  static Future<Uint8List> _compressImage(
+    Uint8List rawBytes, {
+    int maxSide = 1024,
+    int quality = 75,
+  }) async {
+    try {
+      final decoded = img.decodeImage(rawBytes);
+      if (decoded == null) return rawBytes;
+
+      var image = decoded;
+
+      // Resize if either dimension exceeds maxSide
+      if (image.width > maxSide || image.height > maxSide) {
+        if (image.width >= image.height) {
+          image = img.copyResize(image, width: maxSide);
+        } else {
+          image = img.copyResize(image, height: maxSide);
+        }
+      }
+
+      // Encode as JPEG with specified quality
+      final compressed = Uint8List.fromList(
+        img.encodeJpg(image, quality: quality),
+      );
+      return compressed;
+    } catch (e) {
+      debugPrint('[API] Image compression failed: $e');
+      return rawBytes; // fallback to original
+    }
   }
 }
