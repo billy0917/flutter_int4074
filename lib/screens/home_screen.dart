@@ -22,8 +22,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen>
-    with TickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   static const double _coverFlowViewportFraction = 0.55;
   static const double _coverFlowCardWidthFactor = 0.68;
   static const double _coverFlowOverlapFactor = 0.24;
@@ -110,10 +109,7 @@ class _HomeScreenState extends State<HomeScreen>
     final history = context.watch<HistoryProvider>();
     final xp = StorageService.getTotalXp();
     final level = GameConfig.levelForXp(xp);
-    final streak = StorageService.getStreak();
     final totalStars = StorageService.getTotalStars();
-    final nextLvl = GameConfig.nextLevel(xp);
-    final nextXp = nextLvl?.xpRequired ?? xp;
     final vocab = kDailyVocabList[_currentVocabIndex % kDailyVocabList.length];
 
     return Scaffold(
@@ -155,8 +151,8 @@ class _HomeScreenState extends State<HomeScreen>
                             Expanded(
                               child: _TopStat(
                                 icon: AppIcons.fire,
-                                value: '$streak',
-                                label: l.homeStreakLabel,
+                                value: 'LV.${level.level}',
+                                label: level.titleZh,
                               ),
                             ),
                             const SizedBox(width: 4),
@@ -180,7 +176,8 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       const SizedBox(width: 8),
                       GestureDetector(
-                        onTap: () => Navigator.pushNamed(context, AppRoutes.settings),
+                        onTap: () =>
+                            Navigator.pushNamed(context, AppRoutes.settings),
                         child: Container(
                           width: context.s(48),
                           height: context.s(48),
@@ -274,7 +271,8 @@ class _HomeScreenState extends State<HomeScreen>
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       fontSize: 14,
-                                      color: Colors.white.withValues(alpha: 0.95),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.95),
                                       fontStyle: FontStyle.italic,
                                     ),
                                   ),
@@ -286,7 +284,8 @@ class _HomeScreenState extends State<HomeScreen>
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                       fontSize: 14,
-                                      color: Colors.white.withValues(alpha: 0.85),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.85),
                                     ),
                                   ),
                                 ],
@@ -326,23 +325,6 @@ class _HomeScreenState extends State<HomeScreen>
               child: Column(
                 children: [
                   // 每日生字 label
-                  FadeTransition(
-                    opacity: _fadeAnimations[0],
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(28, 12, 28, 0),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          l.homeDailyVocabTitle,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textLight,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
 
                   // Vocab carousel – Cover Flow style
                   //
@@ -404,8 +386,8 @@ class _HomeScreenState extends State<HomeScreen>
                         children: [
                           Expanded(
                             child: _FeatureButton(
-                              iconWidget:
-                                  AppIcons.svg(AppIcons.chat, size: context.s(28)),
+                              iconWidget: AppIcons.svg(AppIcons.chat,
+                                  size: context.s(28)),
                               titleZh: '日常用語',
                               titleEn: 'Daily Phrases',
                               onTap: () => Navigator.pushNamed(
@@ -415,8 +397,8 @@ class _HomeScreenState extends State<HomeScreen>
                           const SizedBox(width: 10),
                           Expanded(
                             child: _FeatureButton(
-                              iconWidget:
-                                  AppIcons.svg(AppIcons.scroll, size: context.s(28)),
+                              iconWidget: AppIcons.svg(AppIcons.scroll,
+                                  size: context.s(28)),
                               titleZh: '對對碰',
                               titleEn: 'Match Game',
                               onTap: () async {
@@ -431,34 +413,22 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   ),
 
-                  // Bottom info row: greeting + level
+                  // Bottom info row: greeting
                   FadeTransition(
                     opacity: _fadeAnimations[2],
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(24, 4, 24, 12),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Flexible(
-                            child: Text(
-                              _greeting(l),
-                              style: TextStyle(
-                                fontSize: context.sp(20),
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.textDark,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          _greeting(l),
+                          style: TextStyle(
+                            fontSize: context.sp(20),
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textDark,
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '${level.titleZh} LV.${level.level}  $xp/${nextXp}XP',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: AppColors.textMedium,
-                            ),
-                          ),
-                        ],
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
                   ),
@@ -490,7 +460,8 @@ class _TopStat extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.25),
-        borderRadius: BorderRadius.circular(30), // Rounded corners for pill shape
+        borderRadius:
+            BorderRadius.circular(30), // Rounded corners for pill shape
       ),
       child: FittedBox(
         fit: BoxFit.scaleDown,
@@ -622,7 +593,8 @@ class _VocabCard extends StatelessWidget {
           alignment: Alignment.center,
           child: Text(
             vocab.chinese.isNotEmpty ? vocab.chinese.substring(0, 1) : '?',
-            style: TextStyle(fontSize: context.sp(48), color: AppColors.primary),
+            style:
+                TextStyle(fontSize: context.sp(48), color: AppColors.primary),
           ),
         );
       },
@@ -717,8 +689,7 @@ class _CoverFlowDelegate extends FlowDelegate {
   }) : super(repaint: controller);
 
   @override
-  BoxConstraints getConstraintsForChild(
-      int i, BoxConstraints constraints) {
+  BoxConstraints getConstraintsForChild(int i, BoxConstraints constraints) {
     return BoxConstraints(
       minWidth: cardWidth,
       maxWidth: cardWidth,
@@ -754,12 +725,10 @@ class _CoverFlowDelegate extends FlowDelegate {
       final double diff = page - index;
       final double distance = diff.abs();
       final double scale = (1.0 - (distance * scaleDrop)).clamp(0.55, 1.0);
-      final double opacity =
-          (1.0 - (distance * opacityDrop)).clamp(0.0, 1.0);
+      final double opacity = (1.0 - (distance * opacityDrop)).clamp(0.0, 1.0);
       final double scaledWidth = childSize.width * scale;
       final double scaledHeight = childSize.height * scale;
-      final double dx =
-          ((context.size.width - scaledWidth) / 2) -
+      final double dx = ((context.size.width - scaledWidth) / 2) -
           (diff * context.size.width * overlapFactor);
       final double dy = (context.size.height - scaledHeight) / 2;
 
