@@ -7,9 +7,8 @@ import '../config/theme.dart';
 import '../config/routes.dart';
 import '../config/game_config.dart';
 import '../config/daily_vocab_data.dart';
-import '../providers/history_provider.dart';
+import '../providers/app_stats_provider.dart';
 import '../services/sense_voice_service.dart';
-import '../services/storage_service.dart';
 import '../utils/constants.dart';
 import '../utils/app_icons.dart';
 import '../utils/responsive.dart';
@@ -39,9 +38,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) context.read<HistoryProvider>().loadRecords();
-    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       unawaited(
         Future<void>.delayed(
@@ -106,10 +102,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
-    final history = context.watch<HistoryProvider>();
-    final xp = StorageService.getTotalXp();
-    final level = GameConfig.levelForXp(xp);
-    final totalStars = StorageService.getTotalStars();
+    final stats = context.watch<AppStatsProvider>();
+    final level = stats.level;
     final vocab = kDailyVocabList[_currentVocabIndex % kDailyVocabList.length];
 
     return Scaffold(
@@ -159,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             Expanded(
                               child: _TopStat(
                                 icon: AppIcons.star,
-                                value: '$totalStars',
+                                value: '${stats.totalStars}',
                                 label: l.homeStarsLabel,
                               ),
                             ),
@@ -167,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             Expanded(
                               child: _TopStat(
                                 icon: AppIcons.book,
-                                value: '${history.totalWords}',
+                                value: '${stats.totalWords}',
                                 label: l.homeLearnedWordsLabel,
                               ),
                             ),

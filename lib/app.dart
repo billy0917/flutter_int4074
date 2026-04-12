@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'config/theme.dart';
 import 'config/routes.dart';
+import 'providers/app_stats_provider.dart';
 import 'providers/locale_provider.dart';
 import 'providers/history_provider.dart';
 import 'providers/quiz_provider.dart';
@@ -16,6 +17,7 @@ class PinPinGoApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
+        ChangeNotifierProvider(create: (_) => AppStatsProvider()),
         ChangeNotifierProvider(create: (_) => HistoryProvider()),
         ChangeNotifierProvider(create: (_) => QuizProvider()),
       ],

@@ -46,6 +46,18 @@ class StorageService {
     return list;
   }
 
+  static int getTotalRecordsCount() {
+    return _recordsBox.length;
+  }
+
+  static Stream<BoxEvent> watchRecords() {
+    return _recordsBox.watch();
+  }
+
+  static Stream<BoxEvent> watchSettings() {
+    return _settingsBox.watch();
+  }
+
   static LearningRecord? getRecord(String id) {
     return _recordsBox.get(id);
   }
@@ -91,14 +103,14 @@ class StorageService {
     // Hive stores as dynamic; deep-cast to Map<String, dynamic>.
     return Map<String, dynamic>.from(
       (raw as Map).map((k, v) => MapEntry(
-        k.toString(),
-        Map<String, dynamic>.from(
-          (v as Map).map((k2, v2) => MapEntry(
-            k2.toString(),
-            Map<String, dynamic>.from(v2 as Map),
+            k.toString(),
+            Map<String, dynamic>.from(
+              (v as Map).map((k2, v2) => MapEntry(
+                    k2.toString(),
+                    Map<String, dynamic>.from(v2 as Map),
+                  )),
+            ),
           )),
-        ),
-      )),
     );
   }
 
@@ -115,7 +127,9 @@ class StorageService {
     final key = phraseIndex.toString();
     final existing = catMap[key] as Map<String, dynamic>?;
     final bestScore = existing != null
-        ? (score > (existing['best'] as num)) ? score : (existing['best'] as num).toDouble()
+        ? (score > (existing['best'] as num))
+            ? score
+            : (existing['best'] as num).toDouble()
         : score;
     final attempts = existing != null ? (existing['attempts'] as int) + 1 : 1;
     catMap[key] = {
