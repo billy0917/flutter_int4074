@@ -6,13 +6,28 @@
 
 ---
 
+## 截圖 Screenshots
+
+<div align="center">
+
+| | | |
+|---|---|---|
+| ![截圖 1](../Screenshot/Screenshot_20260412_100055.jpg) | ![截圖 2](../Screenshot/Screenshot_20260412_100105.jpg) | ![截圖 3](../Screenshot/Screenshot_20260412_100117.jpg) |
+| ![截圖 4](../Screenshot/Screenshot_20260412_100207.jpg) | ![截圖 5](../Screenshot/Screenshot_20260412_100215.jpg) | ![截圖 6](../Screenshot/Screenshot_20260412_100242.jpg) |
+| ![截圖 7](../Screenshot/Screenshot_20260412_100245.jpg) | ![截圖 8](../Screenshot/Screenshot_20260412_100250.jpg) | ![截圖 9](../Screenshot/Screenshot_20260412_100258.jpg) |
+
+</div>
+
+---
+
 ## 目錄 Table of Contents
 
-1. [功能概覽 Features](#功能概覽-features)
-2. [技術棧 Tech Stack](#技術棧-tech-stack)
-3. [整體架構 Architecture](#整體架構-architecture)
-4. [目錄結構 Directory Structure](#目錄結構-directory-structure)
-5. [各層詳解 Layer Breakdown](#各層詳解-layer-breakdown)
+1. [截圖 Screenshots](#截圖-screenshots)
+2. [功能概覽 Features](#功能概覽-features)
+3. [技術棧 Tech Stack](#技術棧-tech-stack)
+4. [整體架構 Architecture](#整體架構-architecture)
+5. [目錄結構 Directory Structure](#目錄結構-directory-structure)
+6. [各層詳解 Layer Breakdown](#各層詳解-layer-breakdown)
    - [入口與初始化](#入口與初始化-entry--initialization)
    - [Config 層](#config-層)
    - [Model 層](#model-層)
