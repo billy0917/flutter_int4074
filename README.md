@@ -10,6 +10,10 @@
 
 <div align="center">
 
+<p>
+     <img src="Screenshot/Homescreen.gif" alt="Homescreen GIF" width="360">
+</p>
+
 | | | |
 |---|---|---|
 | ![截圖 1](Screenshot/Screenshot_20260412_100055.jpg) | ![截圖 2](Screenshot/Screenshot_20260412_100105.jpg) | ![截圖 3](Screenshot/Screenshot_20260412_100117.jpg) |
@@ -27,25 +31,51 @@
 
 ## 目錄 Table of Contents
 
-1. [截圖 Screenshots](#截圖-screenshots)
-2. [功能概覽 Features](#功能概覽-features)
-3. [技術棧 Tech Stack](#技術棧-tech-stack)
-4. [整體架構 Architecture](#整體架構-architecture)
-5. [目錄結構 Directory Structure](#目錄結構-directory-structure)
-6. [各層詳解 Layer Breakdown](#各層詳解-layer-breakdown)
-   - [入口與初始化](#入口與初始化-entry--initialization)
-   - [Config 層](#config-層)
-   - [Model 層](#model-層)
-   - [Service 層](#service-層)
-   - [Provider 層（狀態管理）](#provider-層狀態管理)
-   - [Widget 層（共用元件）](#widget-層共用元件)
-   - [Screen 層（畫面）](#screen-層畫面)
-   - [Utils 工具層](#utils-工具層)
-   - [本地化 i18n](#本地化-i18n)
-6. [資料流 Data Flow](#資料流-data-flow)
-7. [畫面導航圖 Navigation Map](#畫面導航圖-navigation-map)
-8. [Android 權限](#android-權限)
-9. [環境設置與運行](#環境設置與運行-setup--run)
+- [拼拼樂 PinPin Go](#拼拼樂-pinpin-go)
+  - [截圖 Screenshots](#截圖-screenshots)
+  - [目錄 Table of Contents](#目錄-table-of-contents)
+  - [功能概覽 Features](#功能概覽-features)
+  - [技術棧 Tech Stack](#技術棧-tech-stack)
+  - [整體架構 Architecture](#整體架構-architecture)
+  - [目錄結構 Directory Structure](#目錄結構-directory-structure)
+  - [各層詳解 Layer Breakdown](#各層詳解-layer-breakdown)
+    - [入口與初始化 (Entry \& Initialization)](#入口與初始化-entry--initialization)
+    - [Config 層](#config-層)
+    - [Model 層](#model-層)
+      - [`RecognitionResult` \& `CharacterTone`](#recognitionresult--charactertone)
+      - [`QuizQuestion`](#quizquestion)
+      - [Hive 持久化模型（`learning_record.dart`）](#hive-持久化模型learning_recorddart)
+    - [Service 層](#service-層)
+      - [`ApiService`（核心 AI 服務）](#apiservice核心-ai-服務)
+      - [`StorageService`（Hive 封裝）](#storageservicehive-封裝)
+      - [`TtsService`（TTS 封裝）](#ttsservicetts-封裝)
+      - [`ImageService`（圖像服務）](#imageservice圖像服務)
+    - [Provider 層（狀態管理）](#provider-層狀態管理)
+    - [Widget 層（共用元件）](#widget-層共用元件)
+      - [Claymorphism 元件組](#claymorphism-元件組)
+      - [功能性元件](#功能性元件)
+    - [Screen 層（畫面）](#screen-層畫面)
+      - [SplashScreen](#splashscreen)
+      - [HomeScreen](#homescreen)
+      - [CameraScreen](#camerascreen)
+      - [ResultScreen](#resultscreen)
+      - [QuizScreen](#quizscreen)
+      - [QuizResultScreen](#quizresultscreen)
+      - [HistoryScreen](#historyscreen)
+      - [HistoryDetailScreen](#historydetailscreen)
+      - [SettingsScreen](#settingsscreen)
+    - [Utils 工具層](#utils-工具層)
+    - [本地化 i18n](#本地化-i18n)
+  - [資料流 Data Flow](#資料流-data-flow)
+    - [主流程：拍照 → 學習 → 測驗](#主流程拍照--學習--測驗)
+    - [聲調手繪流程](#聲調手繪流程)
+  - [畫面導航圖 Navigation Map](#畫面導航圖-navigation-map)
+  - [Android 權限](#android-權限)
+  - [環境設置與運行 Setup \& Run](#環境設置與運行-setup--run)
+    - [前置需求](#前置需求)
+    - [安裝步驟](#安裝步驟)
+    - [API Key 設置](#api-key-設置)
+  - [Getting Started](#getting-started)
 
 ---
 
