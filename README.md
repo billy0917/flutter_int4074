@@ -12,9 +12,9 @@
 
 | | | |
 |---|---|---|
-| ![截圖 1](../Screenshot/Screenshot_20260412_100055.jpg) | ![截圖 2](../Screenshot/Screenshot_20260412_100105.jpg) | ![截圖 3](../Screenshot/Screenshot_20260412_100117.jpg) |
-| ![截圖 4](../Screenshot/Screenshot_20260412_100207.jpg) | ![截圖 5](../Screenshot/Screenshot_20260412_100215.jpg) | ![截圖 6](../Screenshot/Screenshot_20260412_100242.jpg) |
-| ![截圖 7](../Screenshot/Screenshot_20260412_100245.jpg) | ![截圖 8](../Screenshot/Screenshot_20260412_100250.jpg) | ![截圖 9](../Screenshot/Screenshot_20260412_100258.jpg) |
+| ![截圖 1](Screenshot/Screenshot_20260412_100055.jpg) | ![截圖 2](Screenshot/Screenshot_20260412_100105.jpg) | ![截圖 3](Screenshot/Screenshot_20260412_100117.jpg) |
+| ![截圖 4](Screenshot/Screenshot_20260412_100207.jpg) | ![截圖 5](Screenshot/Screenshot_20260412_100215.jpg) | ![截圖 6](Screenshot/Screenshot_20260412_100242.jpg) |
+| ![截圖 7](Screenshot/Screenshot_20260412_100245.jpg) | ![截圖 8](Screenshot/Screenshot_20260412_100250.jpg) | ![截圖 9](Screenshot/Screenshot_20260412_100258.jpg) |
 
 </div>
 
